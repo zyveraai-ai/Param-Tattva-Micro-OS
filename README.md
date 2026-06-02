@@ -13,7 +13,7 @@ Designed for Edge devices, IoT, and low-end hardware, it fetches semantic data f
 ## 🚀 How to Run (Linux / Android Termux)
 
 Step 1: Clone the engine
-`git clone https://github.com/YOUR_USERNAME/Param-Tattva-Micro-OS.git`
+`git clone https://github.com/zyveraai-ai/Param-Tattva-Micro-OS`
 `cd Param-Tattva-Micro-OS`
 
 Step 2: Compile the Kernel
