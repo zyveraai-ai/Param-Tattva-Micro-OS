@@ -1,1 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Param-Tattva OS // Cloud Layer</title>
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --dark-green: #008f11;
+            --bg-color: #050505;
+        }
 
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        /* Fractal Background Canvas */
+        #fractalCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            opacity: 0.25; /* Dimmed to allow UI readability */
+        }
+
+        /* Cyberpunk Scanline Overlay */
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* UI Dashboard Layer */
+        #ui-layer {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+            padding: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+            text-shadow: 0 0 5px var(--neon-green);
+            pointer-events: none; /* Let clicks pass through empty space */
+        }
+
+        .panel {
+            background: rgba(0, 20, 0, 0.75);
+            border: 1px solid var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+            padding: 20px;
+            pointer-events: auto; /* Re-enable clicks inside panels */
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3 { margin-top: 0; text-transform: uppercase; border-bottom: 1px solid var(--dark-green); padding-bottom: 5px; }
+        
+        /* Status Indicators */
+        .status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; }
+        .status-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: red; box-shadow: 0 0 8px red; transition: all 0.3s ease; }
+        .status-dot.online { background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
+
+        /* Inputs */
+        .input-group { display: flex; gap: 10px; margin-top: 15px; }
+        input[type="text"] {
+            flex-grow: 1;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 10px;
+            font-family: inherit;
+            outline: none;
+        }
+        input[type="text"]:focus { box-shadow: 0 0 8px var(--neon-green); }
+        button {
+            background: var(--dark-green);
+            color: #000;
+            border: 1px solid var(--neon-green);
+            padding: 10px 20px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        button:hover { background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+
+        /* Data Displays */
+        .data-block { margin-top: 15px; }
+        .data-label { font-size: 0.8rem; color: #888; }
+        .data-value { font-size: 1.2rem; word-break: break-all; }
+        .wiki-text { font-size: 0.9rem; line-height: 1.4; color: #ccc; margin-top: 5px; text-shadow: none; }
+
+        /* Terminal */
+        #terminal {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--dark-green);
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .log-entry { border-bottom: 1px dashed rgba(0, 255, 65, 0.2); padding-bottom: 3px; }
+        .log-time { color: #888; margin-right: 8px; }
+        
+        /* Grid Placement */
+        #control-panel { grid-column: 1; grid-row: 1 / 3; }
+        #terminal-panel { grid-column: 2; grid-row: 1 / 3; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--dark-green); }
+    </style>
+</head>
+<body>
+
+    <canvas id="fractalCanvas"></canvas>
+    <div class="scanlines"></div>
+
+    <div id="ui-layer">
+        
+        <div id="control-panel" class="panel">
+            <h2>Param-Tattva OS</h2>
+            
+            <div class="status-row">
+                <span>Kernel State:</span>
+                <div>
+                    <span id="kernel-status-text">CONNECTING...</span>
+                    <span id="kernel-status-dot" class="status-dot"></span>
+                </div>
+            </div>
+            <div class="status-row">
+                <span>Mem Lock:</span>
+                <span>1024 BYTES (HDC/SNN)</span>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="queryInput" placeholder="Enter target (e.g. Blackhole)" autocomplete="off">
+                <button onclick="executeManifest()">Manifest</button>
+            </div>
+
+            <div class="data-block">
+                <div class="data-label">O(1) NODE HASH</div>
+                <div class="data-value" id="out-hash">AWAITING_INPUT</div>
+            </div>
+
+            <div class="data-block">
+                <div class="data-label">SNN SPIKE ACTIVITY</div>
+                <div class="data-value" id="out-snn">0</div>
+            </div>
+
+            <div class="data-block" style="flex-grow: 1;">
+                <div class="data-label">REAL-WORLD DATA INTEGRATION</div>
+                <div class="wiki-text" id="out-wiki">[WIKIPEDIA EXTRACT WILL RENDER HERE]</div>
+            </div>
+        </div>
+
+        <div id="terminal-panel" class="panel">
+            <h3>System Terminal // Network Logs</h3>
+            <div id="terminal"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. TERMINAL LOGGING SYSTEM
+        // ==========================================
+        const terminal = document.getElementById('terminal');
+        function logTerm(msg, isError = false) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const time = new Date().toISOString().split('T')[1].slice(0, -1);
+            entry.innerHTML = `<span class="log-time">[${time}]</span><span style="color: ${isError ? 'red' : 'inherit'}">${msg}</span>`;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // ==========================================
+        // 2. KERNEL HEARTBEAT (PING /api/state)
+        // ==========================================
+        async function pingKernel() {
+            try {
+                const res = await fetch('http://localhost:8108/api/state');
+                if (res.ok) {
+                    document.getElementById('kernel-status-dot').classList.add('online');
+                    document.getElementById('kernel-status-text').textContent = 'ONLINE ';
+                } else {
+                    throw new Error("Bad Status");
+                }
+            } catch (e) {
+                document.getElementById('kernel-status-dot').classList.remove('online');
+                document.getElementById('kernel-status-text').textContent = 'OFFLINE ';
+            }
+        }
+        // Ping immediately, then every 3 seconds
+        pingKernel();
+        setInterval(pingKernel, 3000);
+        logTerm("SYS_INIT: Edge OS Dashboard Loaded.");
+
+        // ==========================================
+        // 3. FRACTAL CANVAS ENGINE
+        // ==========================================
+        const canvas = document.getElementById('fractalCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Mathematical parameters driven by Node Hash
+        let time = 0;
+        let fractalHue = 120; // Default green
+        let fractalSpeed = 0.002;
+        let fractalRadius = 150;
+        let maxDepth = 5;
+
+        // Updates parameters based on O(1) hash
+        function syncFractalToHash(hash) {
+            // Map hash properties to visual elements safely
+            const safeHash = Math.abs(parseInt(hash)) || 42;
+            
+            // Hue: 0-360
+            fractalHue = safeHash % 360;
+            
+            // Speed: Map last digit to a speed modifier (0.001 to 0.01)
+            fractalSpeed = 0.001 + ((safeHash % 10) / 1000);
+            
+            // Radius: Base 100 + modulo scaling
+            fractalRadius = 100 + (safeHash % 150);
+            
+            logTerm(`FRACTAL_SYNC: Hue=[${fractalHue}], Speed=[${fractalSpeed.toFixed(4)}], Radius=[${fractalRadius}]`);
+        }
+
+        // Recursive circular drawer
+        function drawFractal(x, y, radius, depth, currentAngle) {
+            if (depth === 0) return;
+
+            // Draw current node
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            // Opacity decreases with depth
+            ctx.strokeStyle = `hsla(${fractalHue}, 100%, 50%, ${depth / maxDepth})`;
+            ctx.lineWidth = depth * 0.5;
+            ctx.stroke();
+
+            // Recursively draw branches
+            const numBranches = 3;
+            for (let i = 0; i < numBranches; i++) {
+                // Calculate angular offset
+                const branchAngle = currentAngle + (i * Math.PI * 2) / numBranches + time;
+                const nextX = x + Math.cos(branchAngle) * radius;
+                const nextY = y + Math.sin(branchAngle) * radius;
+                
+                drawFractal(nextX, nextY, radius * 0.5, depth - 1, branchAngle * 1.2);
+            }
+        }
+
+        function animateCanvas() {
+            // Slight clear for trail effect
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            time += fractalSpeed;
+            drawFractal(width / 2, height / 2, fractalRadius, maxDepth, time);
+            
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // ==========================================
+        // 4. SPEECH SYNTHESIS ENGINE
+        // ==========================================
+        function speak(text) {
+            window.speechSynthesis.cancel(); // Halt current speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.1; 
+            utterance.pitch = 0.8; // Cyberpunk/AI-ish pitch
+            utterance.volume = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ==========================================
+        // 5. CORE MANIFEST WORKFLOW
+        // ==========================================
+        async function executeManifest() {
+            const inputEl = document.getElementById('queryInput');
+            const word = inputEl.value.trim();
+            if (!word) return;
+
+            logTerm(`----------------------------------------`);
+            logTerm(`CMD_MANIFEST: Initiating fold for target [${word}]`);
+            
+            // Allow input by pressing Enter
+            inputEl.blur();
+
+            // Step 1 & 2: Fire Simultaneous Fetch Requests
+            const kernelUrl = `http://localhost:8108/api/manifest?query=${encodeURIComponent(word)}`;
+            const wikiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(word)}`;
+
+            try {
+                logTerm(`NET: Dispatching parallel requests to Param-Tattva (C-Kernel) and Wikipedia (REST)...`);
+                
+                const [kernelRes, wikiRes] = await Promise.all([
+                    fetch(kernelUrl),
+                    fetch(wikiUrl)
+                ]);
+
+                // Handle Kernel Response
+                if (!kernelRes.ok) throw new Error(`Kernel HTTP ${kernelRes.status}`);
+                const kernelData = await kernelRes.json();
+                logTerm(`KER_RX: {"status":"${kernelData.status}", "op":"${kernelData.operation}", "hash":${kernelData.node_hash}, "spike":${kernelData.snn_spike}}`);
+                
+                // Handle Wiki Response
+                if (wikiRes.status === 404) throw new Error("Wikipedia entity not found.");
+                if (!wikiRes.ok) throw new Error(`Wiki HTTP ${wikiRes.status}`);
+                const wikiData = await wikiRes.json();
+                logTerm(`WIK_RX: Fetched ${wikiData.extract.length} bytes of extract data.`);
+
+                // Update UI Data
+                document.getElementById('out-hash').textContent = kernelData.node_hash;
+                document.getElementById('out-snn').textContent = kernelData.snn_spike;
+                document.getElementById('out-wiki').textContent = wikiData.extract;
+
+                // Sync Fractal Visuals
+                syncFractalToHash(kernelData.node_hash);
+
+                // Step 3: Parse and Speak
+                // Extract first 2 sentences using a basic regex split on punctuation
+                const sentences = wikiData.extract.match(/[^.!?]+[.!?]+/g) || [wikiData.extract];
+                const spokenExtract = sentences.slice(0, 2).join(' ');
+                
+                const audioScript = `Knowledge folded. Node Hash is ${kernelData.node_hash}. Real-world data: ${spokenExtract}`;
+                logTerm(`AUDIO: Synthesizing TTS payload...`);
+                speak(audioScript);
+
+            } catch (error) {
+                logTerm(`ERR: ${error.message}`, true);
+                if(error.message.includes("Failed to fetch")) {
+                    logTerm("HINT: Is Param-Tattva running on :8108? Check CORS headers in C-Kernel.", true);
+                }
+            }
+        }
+
+        // Bind Enter key to input
+        document.getElementById('queryInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') executeManifest();
+        });
+
+    </script>
+</body>
+</html>
