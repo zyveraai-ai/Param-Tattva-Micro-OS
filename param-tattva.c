@@ -68,10 +68,20 @@ void start_cognitive_server() {
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) { exit(EXIT_FAILURE); }
     if (listen(server_fd, 3) < 0) { exit(EXIT_FAILURE); }
 
-    printf("==========================================\n");
-    printf("[SYSTEM] PARAM-TATTVA CORE OS v1.0 FINAL\n");
+        printf("\n");
+    printf("      :::======== :::======== :::====  :::====::: :::==== \n");
+    printf("      :::====:::: :::====:::: :::====  :::====::: :::==== \n");
+    printf("      :::         :::         :::  === ::: ===::: :::  ===\n");
+    printf("      :::         :::======== :::  === ::: ===::: :::==== \n");
+    printf("      :::         :::======== :::====  :::     ::: :::==== \n");
+    printf("      :::         :::         ::: ==== :::     ::: :::  ===\n");
+    printf("\n");
+    printf("         [ ⊕ ] PARAM-TATTVA CORE OS | v1.0 FINAL [ ⊕ ]\n");
+    printf("=================================================================\n");
+    printf("[SYSTEM] 1KB Cognitive Micro-Kernel Initialized.\n");
     printf("[STATUS] Engine Active & Locked on 127.0.0.1:%d\n", PORT);
-    printf("==========================================\n");
+    printf("=================================================================\n");
+
 
     while(1) {
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) continue;
