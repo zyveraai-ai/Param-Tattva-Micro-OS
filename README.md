@@ -88,3 +88,6 @@ Because XOR is mathematically reversible, the Karma Protocol removes specific kn
 
 ---
 *Built with focus on the Physics of Compute. Open Source for the Edge.*
+
+
+​"Disclaimer: Param-Tattva is currently an experimental Proof-of-Concept (PoC) demonstrating O(1) cognitive computing. It currently runs as a POSIX-compliant daemon. Full bare-metal hardware ports (HAL) and sensor-noise calibration are open for community contribution."
