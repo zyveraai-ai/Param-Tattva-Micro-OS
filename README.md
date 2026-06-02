@@ -1,26 +1,29 @@
-# ⚛️ Param-Tattva: O(1) Cognitive Edge Micro-Kernel
+# ⚛️ Param-Tattva: 1KB Cognitive Edge Micro-Kernel
 
-Param-Tattva is a bare-metal, ultra-lightweight AI micro-kernel written in pure C. It bypasses modern massive LLM architectures by utilizing Hyperdimensional Computing (HDC) and Spiking Neural Networks (SNN) logic. 
+Param-Tattva is a bare-metal, ultra-lightweight AI micro-kernel written in pure C. It completely bypasses modern massive LLM architectures by utilizing Hyperdimensional Computing (HDC) and Spiking Neural Networks (SNN) logic. 
 
-Designed for Edge devices, IoT, and low-end hardware, it fetches semantic data from the web, compresses it into mathematical strings using XOR logic, and runs on a completely locked **1KB RAM footprint**.
+Designed for Edge devices, Swarm Drones, and IoT, it compresses semantic data into mathematical hashes using XOR logic and runs on a strictly locked **1KB RAM footprint**.
 
-## 🔥 Core Features
-1. **O(1) Memory Architecture (Bindu):** Persistent memory overlapping using bitwise XOR (`brain.bin`).
-2. **Spiking Threshold Logic:** Extreme CPU efficiency. Processes data only when action potentials cross the set threshold.
-3. **Standalone C-Server:** Built-in multi-threaded POSIX socket server (`pthreads`). No external dependencies.
-4. **Hacker-Proof:** Locked strictly to `127.0.0.1` (Localhost) to prevent external WiFi network breaches.
+## 🚀 The Architecture (API-First)
+This is not a GUI application. It is a headless, hack-proof POSIX socket server running strictly on `127.0.0.1:8108`. It provides a completely decentralized cognitive backend for your hardware.
 
-## 🚀 How to Run (Linux / Android Termux)
+### API Routes for Developers:
+
+**1. Check System State**
+`GET http://localhost:8108/api/state`
+*Returns the strict 1KB memory limits and kernel status.*
+
+**2. Manifest & SNN Spike (Learn)**
+`GET http://localhost:8108/api/manifest?query=obstacle`
+*Hashes the query, folds it into the `brain.bin` using XOR, and triggers an SNN spike if the threshold is crossed.*
+
+**3. Karma Protocol (Unlearn/Undo)**
+`GET http://localhost:8108/api/karma?query=obstacle`
+*Mathematically reverses the XOR binding to remove specific knowledge without increasing memory overhead.*
+
+## 🛠️ How to Build & Ignite
 
 Step 1: Clone the engine
-`git clone https://github.com/zyveraai-ai/Param-Tattva-Micro-OS`
-`cd Param-Tattva-Micro-OS`
-
-Step 2: Compile the Kernel
-`clang param_tattva.c -o param_tattva -lpthread -lm`
-
-Step 3: Ignite the OS
-`./param_tattva &`
-
-Step 4: Open UI in Browser
-Open Incognito mode and go to `http://localhost:8108`
+```bash
+git clone [https://github.com/zyveraai-ai/Param-Tattva-Micro-OS.git](https://github.com/zyveraai-ai/Param-Tattva-Micro-OS.git)
+cd Param-Tattva-Micro-OS
