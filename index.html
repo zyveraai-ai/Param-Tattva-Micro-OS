@@ -3,63 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Param-Tattva OS // Chakra Dashboard</title>
+    <title>Param-Tattva OS v7.2 // Chakra Dashboard</title>
     <style>
-        :root { --neon-green: #00ff41; --dark-green: #008f11; --bg-color: #050505; --tamas-color: #5555ff; --rajas-color: #ff3333; }
-        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: var(--bg-color); color: var(--neon-green); font-family: 'Courier New', Courier, monospace; overflow: hidden; }
-        #fractalCanvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; opacity: 0.35; }
-        .scanlines { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%; z-index: 1; pointer-events: none; }
-        #ui-layer { position: relative; z-index: 2; display: grid; grid-template-columns: 350px 1fr; grid-template-rows: auto 1fr; gap: 20px; padding: 20px; height: 100vh; box-sizing: border-box; text-shadow: 0 0 5px var(--neon-green); pointer-events: none; }
-        .panel { background: rgba(0, 20, 0, 0.75); border: 1px solid var(--neon-green); box-shadow: 0 0 10px rgba(0, 255, 65, 0.2); padding: 20px; pointer-events: auto; display: flex; flex-direction: column; }
-        h1, h2, h3 { margin-top: 0; text-transform: uppercase; border-bottom: 1px solid var(--dark-green); padding-bottom: 5px; }
+        :root {
+            --neon-green: #00ff41;
+            --dark-green: #008f11;
+            --bg-color: #050505;
+            --tamas-color: #5555ff; /* Blue for Tamas */
+            --rajas-color: #ff3333; /* Red for Rajas */
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-color); color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace; overflow: hidden;
+        }
+
+        #fractalCanvas {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; opacity: 0.35;
+        }
+
+        .scanlines {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%; z-index: 1; pointer-events: none;
+        }
+
+        #ui-layer {
+            position: relative; z-index: 2; display: grid;
+            grid-template-columns: 360px 1fr; grid-template-rows: auto 1fr;
+            gap: 20px; padding: 20px; height: 100vh; box-sizing: border-box;
+            text-shadow: 0 0 5px var(--neon-green); pointer-events: none;
+        }
+
+        .panel {
+            background: rgba(0, 15, 0, 0.8); border: 1px solid var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2); padding: 20px;
+            pointer-events: auto; display: flex; flex-direction: column;
+        }
+
+        h2, h3 { margin-top: 0; text-transform: uppercase; border-bottom: 1px solid var(--dark-green); padding-bottom: 5px; }
+        
         .status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; }
         .status-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: red; box-shadow: 0 0 8px red; transition: all 0.3s ease; }
         .status-dot.online { background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
+
         .input-group { display: flex; gap: 10px; margin-top: 15px; }
-        input[type="text"] { flex-grow: 1; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 10px; font-family: inherit; outline: none; }
-        button { background: var(--dark-green); color: #000; border: 1px solid var(--neon-green); padding: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+        input[type="text"] {
+            flex-grow: 1; background: rgba(0,0,0,0.9); border: 1px solid var(--neon-green);
+            color: var(--neon-green); padding: 10px; font-family: inherit; outline: none;
+        }
+        button {
+            background: var(--dark-green); color: #000; border: 1px solid var(--neon-green);
+            padding: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: all 0.2s;
+        }
         button:hover:not(:disabled) { background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
-        button:disabled { background: #333; color: #666; border-color: #444; cursor: not-allowed; box-shadow: none; }
-        .data-block { margin-top: 15px; }
-        .data-label { font-size: 0.8rem; color: #888; }
-        .data-value { font-size: 1.2rem; word-break: break-all; }
-        .wiki-text { font-size: 0.9rem; line-height: 1.4; color: #ccc; margin-top: 5px; text-shadow: none; }
-        .state-sattva { color: var(--neon-green); } .state-rajas { color: var(--rajas-color); text-shadow: 0 0 8px var(--rajas-color); } .state-tamas { color: var(--tamas-color); text-shadow: 0 0 8px var(--tamas-color); }
-        #terminal { flex-grow: 1; background: rgba(0, 0, 0, 0.9); border: 1px solid var(--dark-green); padding: 10px; overflow-y: auto; font-size: 0.85rem; display: flex; flex-direction: column; gap: 5px; }
-        .log-entry { border-bottom: 1px dashed rgba(0, 255, 65, 0.2); padding-bottom: 3px; }
-        .log-time { color: #888; margin-right: 8px; }
-        #control-panel { grid-column: 1; grid-row: 1 / 3; } #terminal-panel { grid-column: 2; grid-row: 1 / 3; }
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #000; } ::-webkit-scrollbar-thumb { background: var(--dark-green); }
+        button:disabled { background: #222; color: #555; border-color: #333; cursor: not-allowed; box-shadow: none; }
+
+        .data-block { margin-top: 12px; }
+        .data-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
+        .data-value { font-size: 1.15rem; word-break: break-all; font-weight: bold; }
+        .wiki-text { font-size: 0.85rem; line-height: 1.4; color: #ccc; margin-top: 5px; text-shadow: none; max-height: 140px; overflow-y: auto; }
+
+        .state-sattva { color: var(--neon-green); }
+        .state-rajas { color: var(--rajas-color); text-shadow: 0 0 8px var(--rajas-color); }
+        .state-tamas { color: var(--tamas-color); text-shadow: 0 0 8px var(--tamas-color); }
+
+        #terminal {
+            flex-grow: 1; background: rgba(0, 0, 0, 0.95); border: 1px solid var(--dark-green);
+            padding: 10px; overflow-y: auto; font-size: 0.8rem; display: flex; flex-direction: column; gap: 5px;
+        }
+        .log-entry { border-bottom: 1px dashed rgba(0, 255, 65, 0.15); padding-bottom: 3px; }
+        .log-time { color: #666; margin-right: 8px; }
+        
+        #control-panel { grid-column: 1; grid-row: 1 / 3; }
+        #terminal-panel { grid-column: 2; grid-row: 1 / 3; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--dark-green); }
     </style>
 </head>
 <body>
+
     <canvas id="fractalCanvas"></canvas>
     <div class="scanlines"></div>
+
     <div id="ui-layer">
+        
         <div id="control-panel" class="panel">
-            <h2>Param-Tattva OS v7.0</h2>
-            <div class="status-row"><span>Kernel (Port 8108):</span><div><span id="kernel-status-text">CONNECTING...</span> <span id="kernel-status-dot" class="status-dot"></span></div></div>
-            <div class="status-row"><span>Mem Lock:</span> <span>1024 BYTES</span></div>
+            <h2>Param-Tattva OS v7.2</h2>
+            
+            <div class="status-row">
+                <span>Kernel Core (8108):</span>
+                <div><span id="kernel-status-text">CONNECTING...</span> <span id="kernel-status-dot" class="status-dot"></span></div>
+            </div>
+            <div class="status-row"><span>Hardware Limit:</span> <span>1024 BYTES</span></div>
+
             <div class="input-group">
-                <input type="text" id="queryInput" placeholder="Enter target (e.g. Quantum)" autocomplete="off">
+                <input type="text" id="queryInput" placeholder="Scan entity (e.g. Jupiter)" autocomplete="off">
                 <button id="manifestBtn" onclick="executeManifest()">Manifest</button>
             </div>
-            <div class="data-block"><div class="data-label">TRIGUNA STATE (MOOD)</div><div class="data-value" id="out-guna">SATTVA (Balanced)</div></div>
-            <div class="data-block"><div class="data-label">PREDICTIVE NOVELTY (HD)</div><div class="data-value" id="out-novelty">0</div></div>
-            <div class="data-block"><div class="data-label">VIVEK (FOLDED TO RAM)</div><div class="data-value" id="out-folded">N/A</div></div>
-            <div class="data-block"><div class="data-label">NODE HASH (Mūlādhāra)</div><div class="data-value" id="out-hash">AWAITING_INPUT</div></div>
-            <div class="data-block" style="flex-grow: 1;"><div class="data-label">REAL-WORLD CONTEXT (LLM/Wiki)</div><div class="wiki-text" id="out-wiki">[WIKIPEDIA EXTRACT]</div></div>
+
+            <div class="data-block">
+                <div class="data-label">Homeostasis State (Triguna)</div>
+                <div class="data-value" id="out-guna">SATTVA (Balanced)</div>
+            </div>
+
+            <div class="data-block">
+                <div class="data-label">Predictive Novelty Error (HD)</div>
+                <div class="data-value" id="out-novelty">0</div>
+            </div>
+
+            <div class="data-block">
+                <div class="data-label">Vivek Action Filter</div>
+                <div class="data-value" id="out-folded">N/A</div>
+            </div>
+
+            <div class="data-block">
+                <div class="data-label">Semantic Node Hash (PRNG Seed)</div>
+                <div class="data-value" id="out-hash">AWAITING_INPUT</div>
+            </div>
+
+            <div class="data-block" style="flex-grow: 1; display: flex; flex-direction: column;">
+                <div class="data-label">Real-World Environmental Context</div>
+                <div class="wiki-text" id="out-wiki">[WIKIPEDIA EXTRACT REAL-TIME TELEMETRY]</div>
+            </div>
         </div>
+
         <div id="terminal-panel" class="panel">
-            <h3>Cognitive Terminal // Neural Logs</h3>
+            <h3>Cognitive Tracking Terminal // Secure Network Logs</h3>
             <div id="terminal"></div>
         </div>
+
     </div>
 
     <script>
         const terminal = document.getElementById('terminal');
         const manifestBtn = document.getElementById('manifestBtn');
-        let currentAbortController = null; // To kill old requests if a new one starts
+        let currentAbortController = null;
 
         function logTerm(msg, isError = false) {
             const entry = document.createElement('div');
@@ -83,9 +165,9 @@
             }
         }
         pingKernel(); setInterval(pingKernel, 3000);
-        logTerm("SYS_INIT: V7.0 Maha-Bindu Dashboard Loaded.");
+        logTerm("SYS_INIT: Patched Hybrid Core Dashboard Online.");
 
-        // --- FRACTAL ENGINE ---
+        // --- CORE FRACTAL ENGINE ---
         const canvas = document.getElementById('fractalCanvas'); const ctx = canvas.getContext('2d');
         let width, height;
         function resizeCanvas() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
@@ -93,24 +175,33 @@
 
         let time = 0; let fractalHue = 120; let fractalSpeed = 0.002; let fractalRadius = 150; let maxDepth = 5;
 
-        function updateVisuals(guna, novelty) {
-            if(guna === 0) { fractalHue = 240; document.getElementById('out-guna').innerHTML = '<span class="state-tamas">TAMAS (Relaxed)</span>'; }
-            else if(guna === 1) { fractalHue = 120; document.getElementById('out-guna').innerHTML = '<span class="state-sattva">SATTVA (Balanced)</span>'; }
-            else if(guna === 2) { fractalHue = 0; document.getElementById('out-guna').innerHTML = '<span class="state-rajas">RAJAS (Chaos)</span>'; }
-            fractalSpeed = 0.001 + (novelty / 10000); fractalRadius = 100 + (novelty % 100);
+        function updateTelemetryVisuals(guna, novelty) {
+            if(guna === 0) { 
+                fractalHue = 240; 
+                document.getElementById('out-guna').innerHTML = '<span class="state-tamas">TAMAS (Relaxed)</span>'; 
+            } else if(guna === 1) { 
+                fractalHue = 120; 
+                document.getElementById('out-guna').innerHTML = '<span class="state-sattva">SATTVA (Balanced)</span>'; 
+            } else if(guna === 2) { 
+                fractalHue = 0; 
+                document.getElementById('out-guna').innerHTML = '<span class="state-rajas">RAJAS (Chaos Anomaly)</span>'; 
+            }
+            fractalSpeed = 0.001 + (novelty / 12000);
+            fractalRadius = 110 + (novelty % 110);
         }
 
         function drawFractal(x, y, radius, depth, currentAngle) {
             if (depth === 0) return;
             ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2);
             ctx.strokeStyle = `hsla(${fractalHue}, 100%, 50%, ${depth / maxDepth})`;
-            ctx.lineWidth = depth * 0.5; ctx.stroke();
+            ctx.lineWidth = depth * 0.4; ctx.stroke();
             const numBranches = 3;
             for (let i = 0; i < numBranches; i++) {
                 const branchAngle = currentAngle + (i * Math.PI * 2) / numBranches + time;
                 drawFractal(x + Math.cos(branchAngle) * radius, y + Math.sin(branchAngle) * radius, radius * 0.5, depth - 1, branchAngle * 1.2);
             }
         }
+
         function animateCanvas() {
             ctx.fillStyle = 'rgba(5, 5, 5, 0.15)'; ctx.fillRect(0, 0, width, height);
             time += fractalSpeed; drawFractal(width / 2, height / 2, fractalRadius, maxDepth, time);
@@ -118,75 +209,67 @@
         }
         animateCanvas();
 
-        // --- TTS ENGINE ---
+        // --- HARDWARE TELEMETRY TTS ENGINE ---
         function speak(text) {
-            window.speechSynthesis.cancel(); // 100% guarantee to cut off old speech
+            window.speechSynthesis.cancel();
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 1.1; utterance.pitch = 0.8;
+                utterance.rate = 1.1; utterance.pitch = 0.75;
                 window.speechSynthesis.speak(utterance);
-            }, 50);
+            }, 60);
         }
 
-        // --- CORE MANIFEST (v7.0 Update with Anti-Lag) ---
+        // --- MANIFEST PROTOCOL ---
         async function executeManifest() {
             const inputEl = document.getElementById('queryInput');
             const word = inputEl.value.trim();
             if (!word) return;
 
-            // Anti-Spam Lock
             manifestBtn.disabled = true;
-            manifestBtn.textContent = 'WAIT...';
+            manifestBtn.textContent = 'SCANN...';
             inputEl.blur();
             
-            // Abort previous slow requests if any
             if(currentAbortController) currentAbortController.abort();
             currentAbortController = new AbortController();
             const signal = currentAbortController.signal;
 
             logTerm(`----------------------------------------`);
-            logTerm(`CMD_MANIFEST: Scanning Target [${word}]`);
+            logTerm(`TELEMETRY: Scanning Target sequence [${word}]`);
 
             const kernelUrl = `http://localhost:8108/api/manifest?query=${encodeURIComponent(word)}`;
             const wikiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(word)}`;
 
             try {
-                // OS Kernel Fetch (Microseconds)
+                // Microsecond execution via C-Kernel
                 const kernelRes = await fetch(kernelUrl, { signal });
-                if (!kernelRes.ok) throw new Error(`Kernel HTTP ${kernelRes.status}`);
+                if (!kernelRes.ok) throw new Error(`Kernel Error HTTP ${kernelRes.status}`);
                 const kernelData = await kernelRes.json();
                 
-                logTerm(`KER_RX: Hash=${kernelData.hash}, Novelty=${kernelData.novelty}, Spike=${kernelData.snn_spike}, Guna=${kernelData.guna}`);
+                logTerm(`CORE_DATA: Hash=${kernelData.hash} | Novelty=${kernelData.novelty} | Spike=${kernelData.snn_spike} | GunaState=${kernelData.guna}`);
                 
-                // Wikipedia Fetch (Slow Internet)
-                let wikiData = { extract: "Searching external context..." };
+                // Fetch context from cloud REST API
+                let wikiData = { extract: "Fetching background signature data..." };
                 try {
                     const wikiRes = await fetch(wikiUrl, { signal });
                     if (wikiRes.ok) wikiData = await wikiRes.json();
-                    else wikiData.extract = "Target context missing from cloud.";
-                } catch(e) { wikiData.extract = "Internet fetch timeout or aborted."; }
+                    else wikiData.extract = "Target context missing from cloud logs.";
+                } catch(e) { wikiData.extract = "Network timeout or context stream aborted."; }
 
-                // UI Updates (Only runs if request wasn't aborted)
+                // Safe UI Allocation
                 document.getElementById('out-hash').textContent = kernelData.hash;
                 document.getElementById('out-novelty').textContent = kernelData.novelty;
-                document.getElementById('out-folded').textContent = (kernelData.folded === 1) ? "YES (New Knowledge)" : "NO (Filtered)";
+                document.getElementById('out-folded').textContent = (kernelData.folded === 1) ? "YES (Memory SUPERPOSITION)" : "NO (FILTERED Out)";
                 document.getElementById('out-wiki').textContent = wikiData.extract;
 
-                updateVisuals(kernelData.guna, kernelData.novelty);
+                updateTelemetryVisuals(kernelData.guna, kernelData.novelty);
 
-                // Audio Logic
-                let audioScript = "";
-                if (kernelData.snn_spike === 1) {
-                    audioScript = `Alert. Spike triggered. Novelty is ${kernelData.novelty}. `;
-                } else {
-                    audioScript = `Known pattern. No spike. `;
-                }
+                // Safe TTS Execution
+                let audioScript = kernelData.snn_spike === 1 ? `Action potential fired. Anomaly detected.` : `Sequence verified. Base state stable.`;
                 speak(audioScript);
 
             } catch (error) {
-                if(error.name !== 'AbortError') logTerm(`ERR: ${error.message}`, true);
+                if(error.name !== 'AbortError') logTerm(`EXCEPTION: ${error.message}`, true);
             } finally {
-                // Unlock Button
                 manifestBtn.disabled = false;
                 manifestBtn.textContent = 'MANIFEST';
                 currentAbortController = null;
