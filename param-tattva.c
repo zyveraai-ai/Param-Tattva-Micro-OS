@@ -179,7 +179,7 @@ void start_cognitive_server() {
     printf("      :::         :::======== :::====  :::     ::: :::==== \n");
     printf("      :::         :::         ::: ==== :::     ::: :::  ===\n");
     printf("\n");
-    printf("     [ ⊕ ] PARAM-TATTVA CORE OS | v7.0 MAHA-BINDU CHAKRA [ ⊕ ]\n");
+    printf("     [ ⊕ ] PARAM-TATTVA CORE OS | v8.0 MAHA-BINDU MASTERMIND [ ⊕ ]\n");
     printf("=================================================================\n");
     load_brain();
     printf("[SYSTEM] 1KB Cognitive Dual-Core Initialized.\n");
@@ -198,7 +198,29 @@ void start_cognitive_server() {
         
         char json_out[512] = {0};
 
-        if (strstr(buffer, "GET /api/manifest?query=")) {
+        // =========================================================
+        // NEW MODULE: THE ORCHESTRATOR ROUTE (FOR AI BRIDGE)
+        // =========================================================
+        if (strstr(buffer, "GET /api/orchestrate?query=")) {
+            char *q_start = strstr(buffer, "?query=") + 7;
+            char *q_end = strchr(q_start, ' '); if (q_end) *q_end = '\0';
+            
+            // Task Divider Logic: Decide if user wants CODE or normal chat
+            char task_type[16] = "GENERAL";
+            if (strstr(q_start, "code") || strstr(q_start, "app") || strstr(q_start, "build") || strstr(q_start, "fix") || strstr(q_start, "script")) {
+                strcpy(task_type, "CODE");
+            }
+
+            uint32_t hash; int novelty; int folded;
+            int snn_spike = process_and_fold(q_start, &hash, &novelty, &folded);
+            
+            snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"task\":\"%s\", \"hash\":%u, \"spike\":%d}", task_type, hash, snn_spike);
+            send_json_response(new_socket, json_out);
+            printf("[ORCHESTRATOR] Task Classifed: %s -> TYPE: %s\n", q_start, task_type);
+        }
+        // =========================================================
+
+        else if (strstr(buffer, "GET /api/manifest?query=")) {
             char *q_start = strstr(buffer, "?query=") + 7;
             char *q_end = strchr(q_start, ' '); if (q_end) *q_end = '\0';
             
