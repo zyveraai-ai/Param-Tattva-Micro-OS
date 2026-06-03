@@ -133,7 +133,7 @@ void* svadhyaya_thread(void* arg) {
     while(1) {
         if ((new_socket = accept(stream_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) >= 0) {
             // Anāhata (Heart) - Continuous connection to the external stream
-            while(read(new_socket, stream_buffer, 2048) > 0) {
+            while(read(new_socket, stream_buffer, 2047) > 0) { // SECURITY PATCH: -1 byte for null char
                 uint32_t hash = create_semantic_node(stream_buffer);
                 holographic_fold_rom(hash); // Feed massive internet data silently
                 memset(stream_buffer, 0, sizeof(stream_buffer));
@@ -151,7 +151,8 @@ void* svadhyaya_thread(void* arg) {
 // ---------------------------------------------------------
 void send_json_response(int socket, const char* json_body) {
     char response[1024];
-    sprintf(response, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\n\r\n%s", json_body);
+    // SECURITY PATCH: Use snprintf to prevent buffer overflow
+    snprintf(response, sizeof(response), "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\n\r\n%s", json_body);
     send(socket, response, strlen(response), 0);
 }
 
@@ -188,9 +189,14 @@ void start_cognitive_server() {
 
     while(1) {
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) continue;
-        read(new_socket, buffer, 1024);
+        memset(buffer, 0, sizeof(buffer)); // SECURITY PATCH: Clear buffer before read
         
-        char json_out[512];
+        if (read(new_socket, buffer, 1023) <= 0) { // SECURITY PATCH: Safe read
+            close(new_socket);
+            continue;
+        }
+        
+        char json_out[512] = {0};
 
         if (strstr(buffer, "GET /api/manifest?query=")) {
             char *q_start = strstr(buffer, "?query=") + 7;
@@ -199,7 +205,7 @@ void start_cognitive_server() {
             uint32_t hash; int novelty; int folded;
             int snn_spike = process_and_fold(q_start, &hash, &novelty, &folded);
             
-            sprintf(json_out, "{\"status\":\"success\", \"hash\":%u, \"novelty\":%d, \"folded\":%d, \"snn_spike\":%d, \"guna\":%d}", hash, novelty, folded, snn_spike, triguna_state);
+            snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"hash\":%u, \"novelty\":%d, \"folded\":%d, \"snn_spike\":%d, \"guna\":%d}", hash, novelty, folded, snn_spike, triguna_state);
             send_json_response(new_socket, json_out);
             printf("[KERNEL] Rx: %s | Novelty: %d | Spike: %d | Guna: %d\n", q_start, novelty, snn_spike, triguna_state);
         }
@@ -208,7 +214,7 @@ void start_cognitive_server() {
             char *q_end = strchr(q_start, ' '); if (q_end) *q_end = '\0';
             
             uint32_t hash = karma_backward_pass(q_start);
-            sprintf(json_out, "{\"status\":\"success\", \"operation\":\"reversed\", \"node_removed\":%u}", hash);
+            snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"operation\":\"reversed\", \"node_removed\":%u}", hash);
             send_json_response(new_socket, json_out);
             printf("[KERNEL] Karma Reversed: %s\n", q_start);
         }
@@ -222,12 +228,12 @@ void start_cognitive_server() {
             save_brain();
             memcpy(ram_conscious, rom_subconscious, RAM_LIMIT);
             
-            sprintf(json_out, "{\"status\":\"success\", \"operation\":\"llm_learned\", \"hash\":%u}", teacher_hash);
+            snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"operation\":\"llm_learned\", \"hash\":%u}", teacher_hash);
             send_json_response(new_socket, json_out);
             printf("[GURUKUL] Absorbed LLM Hash: %u\n", teacher_hash);
         }
         else if (strstr(buffer, "GET /api/state")) {
-            sprintf(json_out, "{\"os\":\"Param-Tattva\", \"ram\":%d, \"entropy\":%u, \"guna\":%d}", RAM_LIMIT, system_entropy, triguna_state);
+            snprintf(json_out, sizeof(json_out), "{\"os\":\"Param-Tattva\", \"ram\":%d, \"entropy\":%u, \"guna\":%d}", RAM_LIMIT, system_entropy, triguna_state);
             send_json_response(new_socket, json_out);
         }
         else if (strstr(buffer, "GET /api/save")) {
@@ -237,7 +243,7 @@ void start_cognitive_server() {
         else {
             send_json_response(new_socket, "{\"error\":\"Invalid Route.\"}");
         }
-        close(new_socket); memset(buffer, 0, sizeof(buffer));
+        close(new_socket);
     }
 }
 
