@@ -43,7 +43,7 @@ GET http://localhost:8108/api/manifest?query=[GYRO_VALUE]
 ​🎮 Game Development: Powers adaptive NPC (Non-Player Character) AI. Instead of static "If-Else" behaviors, Boss enemies learn the player's attack combos in real-time, adapting defenses dynamically without draining CPU frame-rendering budgets.
 
 ​⚡ Installation & Initialization
-​1. Clone the repository git clone [https://github.com/zyveraai-ai/Param-Tattva-Micro-OS.git](https://github.com/zyveraai-ai/Param-Tattva-Micro-OS.git)
+​1. Clone the repository git clone (https://github.com/zyveraai-ai/Param-Tattva-Micro-OS.git)
 cd Param-Tattva-Micro-OS
 2. Compile the Dual-Core Kernel (Linux / macOS / Termux)
 (Requires POSIX Threads pthread) clang param_tattva.c -o param-tattva -lpthread
