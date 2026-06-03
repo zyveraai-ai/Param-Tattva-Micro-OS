@@ -3,10 +3,12 @@
 #include <string.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <pthread.h>      // For Dual-Core (Internet Stream)
 #include <sys/socket.h>
 #include <netinet/in.h>
 
 #define PORT 8108
+#define STREAM_PORT 8109  // Background 24/7 Self-Awareness Port
 #define RAM_LIMIT 1024
 #define BRAIN_FILE "brain.bin"
 #define SNN_THRESHOLD 15000
