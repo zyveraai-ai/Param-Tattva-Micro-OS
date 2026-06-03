@@ -171,20 +171,21 @@
     <button id="send-btn">TX</button>
   </div>
 
-  <script>
-    const API_BASE = 'http://127.0.0.1:8108';
+    <script>
+    const KERNEL_API = 'http://127.0.0.1:8108'; // For Stats
+    const BRIDGE_API = 'http://127.0.0.1:8110'; // For AI Chat
+    
     const chatBox = document.getElementById('chat-box');
     const inputField = document.getElementById('prompt-input');
     const sendBtn = document.getElementById('send-btn');
 
-    // 1. Fetch Real-Time Stats
+    // 1. Fetch Real-Time Stats (From C-Kernel directly)
     async function updateStats() {
       try {
-        const res = await fetch(`${API_BASE}/api/state`, { cache: 'no-store' });
+        const res = await fetch(`${KERNEL_API}/api/state`, { cache: 'no-store' });
         const data = await res.json();
-        document.getElementById('ui-ram').innerText = data.ram + ' Bytes'; // Fixed RAM issue!
+        document.getElementById('ui-ram').innerText = data.ram + ' Bytes';
         document.getElementById('ui-entropy').innerText = data.entropy;
-        
         let gunaText = "SATTVA";
         if(data.guna == 2) gunaText = "RAJAS";
         if(data.guna == 0) gunaText = "TAMAS";
@@ -193,88 +194,69 @@
         console.error("Kernel Offline");
       }
     }
-    
-    // Auto-refresh stats every 3 seconds
     updateStats();
     setInterval(updateStats, 3000);
 
-    // 2. Handle Messaging
+    // 2. Messaging System
     function addMessage(type, title, text, chips = []) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${type}`;
-      
       let html = `<div class="msg-title">${title}</div>${text}`;
-      
       if(chips.length > 0) {
         html += `<div class="chip-container">`;
-        chips.forEach(c => {
-          html += `<span class="chip ${c.color}">${c.text}</span>`;
-        });
+        chips.forEach(c => html += `<span class="chip ${c.color}">${c.text}</span>`);
         html += `</div>`;
       }
-      
       msgDiv.innerHTML = html;
       chatBox.appendChild(msgDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     async function sendCommand() {
-      const query = inputField.value.trim();
+      const query = inputField.value.trim().toLowerCase(); // Auto lowercase fix
       if (!query) return;
 
-      // Show User Message
-      addMessage('user', 'USER INPUT', query);
+      addMessage('user', 'USER INPUT', inputField.value);
       inputField.value = '';
 
-      // Create a temporary loading message
       const loadId = 'load-' + Date.now();
       const loadDiv = document.createElement('div');
       loadDiv.id = loadId;
       loadDiv.className = 'msg sys';
-      loadDiv.innerHTML = 'Scanning request...';
+      loadDiv.innerHTML = 'Scanning request... (Waking up LLM if needed)';
       chatBox.appendChild(loadDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
 
       try {
-        // Hit the Orchestrator API
-        const res = await fetch(`${API_BASE}/api/orchestrate?query=${encodeURIComponent(query)}`, { cache: 'no-store' });
+        // Hit the Python Bridge instead of C-Kernel
+        const res = await fetch(`${BRIDGE_API}/api/chat?query=${encodeURIComponent(query)}`, { cache: 'no-store' });
         const data = await res.json();
-        
-        // Remove loading message
         document.getElementById(loadId).remove();
 
-        // Handle Real-Time Decision Logic
         if (data.task === "CODE") {
-          addMessage('code', '⚡ AI ENGINE ACTIVATED', 
-            'Coding task detected. The request has been instantly routed to your Local Qwen LLM for offline generation. Check Termux for code output.',
-            [
-              {text: `HASH: ${data.hash}`, color: 'amber'},
-              {text: `SPIKE: ${data.spike}`, color: 'amber'}
-            ]
+          // Wrap the LLM code in a `<pre>` tag so it looks good
+          const formattedCode = `<pre style="background:rgba(0,0,0,0.5); padding:10px; border-radius:5px; margin-top:8px; overflow-x:auto;"><code>${data.llm_response.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`;
+          
+          addMessage('code', '⚡ AI ENGINE (LOCAL QWEN)', 
+            `Here is the requested output:${formattedCode}`,
+            [{text: `HASH: ${data.hash}`, color: 'amber'}, {text: `SPIKE: ${data.spike}`, color: 'amber'}]
           );
         } else {
-          addMessage('sys', '🟢 GENERAL MODE', 
+          addMessage('sys', '🟢 GENERAL MODE (C-KERNEL)', 
             `Concept folded into 1KB Holographic RAM successfully.`,
-            [
-              {text: `HASH: ${data.hash}`, color: 'green'},
-              {text: `SPIKE: ${data.spike}`, color: 'green'}
-            ]
+            [{text: `HASH: ${data.hash}`, color: 'green'}, {text: `SPIKE: ${data.spike}`, color: 'green'}]
           );
         }
-        
-        // Force a stats refresh to show entropy changes instantly
         updateStats();
-
       } catch (err) {
         document.getElementById(loadId).remove();
-        addMessage('sys', '❌ FATAL ERROR', 'Connection to Param-Tattva Kernel lost. Is the C-Kernel running?', []);
+        addMessage('sys', '❌ FATAL ERROR', 'Connection to Python Bridge lost. Is bridge.py running?', []);
       }
     }
 
     sendBtn.addEventListener('click', sendCommand);
-    inputField.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') sendCommand();
-    });
+    inputField.addEventListener('keypress', e => { if (e.key === 'Enter') sendCommand(); });
   </script>
+
 </body>
 </html>
