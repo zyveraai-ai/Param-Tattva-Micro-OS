@@ -238,27 +238,38 @@ if (strstr(buffer, "GET /api/orchestrate") && query_ptr) {
     // Note: Simple decoding to remove %20 artifacts
     for(int i=0; q_start[i]; i++) if(q_start[i] == '+') q_start[i] = ' ';
 
+    // 🔥 THE FIX: Convert to Lowercase for smart checking 🔥
+    char q_lower[512] = {0};
+    strncpy(q_lower, q_start, sizeof(q_lower)-1);
+    for(int i = 0; q_lower[i]; i++) {
+        if(q_lower[i] >= 'A' && q_lower[i] <= 'Z') q_lower[i] += 32; 
+    }
+
     char task_type[16] = "GENERAL";
 
-    // FUZZY LOGIC INTENT DETECTION
-    // Check for Action Verbs instead of just keywords
-    if (strstr(q_start, "build") || strstr(q_start, "create") || strstr(q_start, "make") || 
-        strstr(q_start, "write") || strstr(q_start, "game") || strstr(q_start, "code") || 
-        strstr(q_start, "function") || strstr(q_start, "script")) {
+    // 🔥 FUZZY LOGIC INTENT DETECTION (Ab q_lower use hoga) 🔥
+    // Yahan saare naye keywords (landing, calculator, web) bhi add kar diye hain
+    if (strstr(q_lower, "build") || strstr(q_lower, "create") || strstr(q_lower, "make") || 
+        strstr(q_lower, "write") || strstr(q_lower, "game") || strstr(q_lower, "code") || 
+        strstr(q_lower, "script") || strstr(q_lower, "landing") || strstr(q_lower, "calculator") || 
+        strstr(q_lower, "function") || strstr(q_lower, "web") || strstr(q_lower, "page")) {
         strcpy(task_type, "CODE");
     }
-    else if (strstr(q_start, "draw") || strstr(q_start, "image") || strstr(q_start, "visual") || 
-             strstr(q_start, "paint") || strstr(q_start, "picture") || strstr(q_start, "render")) {
+    else if (strstr(q_lower, "draw") || strstr(q_lower, "image") || strstr(q_lower, "visual") || 
+             strstr(q_lower, "paint") || strstr(q_lower, "picture") || strstr(q_lower, "render")) {
         strcpy(task_type, "VISION");
     }
 
     uint32_t hash; int novelty; int folded;
+    // Note: process_and_fold mein original q_start hi bhejenge taaki Data lose na ho
     int snn_spike = process_and_fold(q_start, &hash, &novelty, &folded);
     
     snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"task\":\"%s\", \"hash\":%u, \"spike\":%d}", task_type, hash, snn_spike);
     send_json_response(new_socket, json_out);
     printf("[ORCHESTRATOR] Task Classifed: %s -> TYPE: %s\n", q_start, task_type);
 }
+
+
 
         // =========================================================
 
