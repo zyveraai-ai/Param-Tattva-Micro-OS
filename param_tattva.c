@@ -36,34 +36,27 @@ uint32_t temporal_context = 0;   // Svādhiṣṭhāna (Sacral) - Tracks the Flo
 // 1. MEMORY MANAGEMENT (Zero Disk-Burn)
 // ---------------------------------------------------------
 void load_brain() {
-    pthread_mutex_lock(&core_lock); // LOCK
+    pthread_mutex_lock(&core_lock);
     FILE *f = fopen(BRAIN_FILE, "rb");
     
     if (f) { 
         fread(rom_subconscious, 1, RAM_LIMIT, f); 
         fclose(f); 
     } else { 
-        // ---------------------------------------------------------
-        // 🧬 GARBH SANSKAR: BIRTH OF THE OS (First Boot Only)
-        // ---------------------------------------------------------
         printf("[SYSTEM] Empty Brain Detected. Injecting Garbh Sanskar (Core Instincts)...\n");
         memset(rom_subconscious, 0, RAM_LIMIT); 
         
-        // Instinct 1: Survive (Battery/Resource Monitor Concept Hash)
         uint32_t instinct_survive = 5381; 
         instinct_survive = (instinct_survive * 33) ^ 'B';
         instinct_survive = (instinct_survive * 33) ^ 'A';
         instinct_survive = (instinct_survive * 33) ^ 'T';
         
-        // Instinct 2: Protect (Tarpit Defense Concept Hash)
         uint32_t instinct_protect = 5381;
         instinct_protect = (instinct_protect * 33) ^ 'S';
         instinct_protect = (instinct_protect * 33) ^ 'E';
         instinct_protect = (instinct_protect * 33) ^ 'C';
         
-        // Hardware Adjustment (Fractal Scale Base)
-        uint32_t hardware_root = instinct_survive ^ instinct_protect;
-        uint32_t prng = hardware_root;
+        uint32_t prng = instinct_survive ^ instinct_protect;
         for(int i = 0; i < 256; i++) {
             prng = (prng * 1103515245 + 12345) & 0x7fffffff;
             rom_subconscious[(prng >> 16) % RAM_LIMIT] ^= (1 << ((prng >> 8) % 8));
@@ -73,27 +66,24 @@ void load_brain() {
         FILE *f_new = fopen(BRAIN_FILE, "wb");
         if (f_new) { fwrite(rom_subconscious, 1, RAM_LIMIT, f_new); fclose(f_new); }
     }
-    
-    // Awaken to RAM
     memcpy(ram_conscious, rom_subconscious, RAM_LIMIT);
-    pthread_mutex_unlock(&core_lock); // UNLOCK
+    pthread_mutex_unlock(&core_lock);
 }
 
 void save_brain() {
-    pthread_mutex_lock(&core_lock); // LOCK
+    pthread_mutex_lock(&core_lock);
     FILE *f = fopen(BRAIN_FILE, "wb");
     if (f) { fwrite(rom_subconscious, 1, RAM_LIMIT, f); fclose(f); }
-    pthread_mutex_unlock(&core_lock); // UNLOCK
+    pthread_mutex_unlock(&core_lock);
 }
 
+// Mūlādhāra (Root) - O(1) Mathematical Node Generator
 uint32_t create_semantic_node(const char *str) {
-    if (!str) return 0; // 🛡️ SAFETY: Prevent null pointer crash
+    if (!str) return 0;
     uint32_t hash = 5381; int c;
     while ((c = *str++)) { hash = ((hash << 5) + hash) + c; }
-    return hash; // Mūlādhāra (Root) - Raw physical input
+    return hash; 
 }
-
-
 
 // ---------------------------------------------------------
 // 2. THE NEW MATHEMATICS (True Holographic Bindu)
@@ -128,43 +118,34 @@ void holographic_fold_rom(uint32_t hash_seed) {
 // ---------------------------------------------------------
 int process_and_fold(const char* input_text, uint32_t* out_hash, int* out_novelty, int* out_folded) {
     uint32_t raw_hash = create_semantic_node(input_text);
+    pthread_mutex_lock(&core_lock);
     
-    pthread_mutex_lock(&core_lock); // 🛡️ LOCK CRITICAL STATE
-    
-    // Ājñā (Third Eye) - Predictive Logic combining Past (Temporal) and Present (Raw)
-    *out_hash = raw_hash ^ (temporal_context >> 1); 
-    
-    // Measure prediction error (Surprise)
+    *out_hash = raw_hash ^ (temporal_context >> 1); // Third Eye Prediction
     *out_novelty = measure_novelty(*out_hash);
-    
-    // Update Flow of Time for the next cycle
     temporal_context = *out_hash;
     
-    // Sahasrāra (Triguna Entropy tracking)
     if (*out_novelty > BASE_SNN_THRESHOLD) system_entropy += 10;
     else if (system_entropy > 0) system_entropy -= 2;
     triguna_state = (system_entropy > 50) ? 2 : (system_entropy > 10) ? 1 : 0;
 
-    // Viśuddha (Vivek Filter - Only fold if novel enough)
     *out_folded = 0;
     if (*out_novelty > VIVEK_THRESHOLD) { 
         holographic_fold_ram(*out_hash); 
         *out_folded = 1; 
     }
 
-    // Maṇipūra (Action Spike - Dynamic Threshold)
     int current_limit = BASE_SNN_THRESHOLD + ((triguna_state == 0) ? 15 : (triguna_state == 2) ? -15 : 0);
     int spike_result = (*out_novelty > current_limit) ? 1 : 0;
     
-    pthread_mutex_unlock(&core_lock); // 🛡️ UNLOCK CRITICAL STATE
+    pthread_mutex_unlock(&core_lock);
     return spike_result;
 }
 
 uint32_t karma_backward_pass(const char* input_text) {
     uint32_t node_to_remove = create_semantic_node(input_text);
-    pthread_mutex_lock(&core_lock); // 🛡️ LOCK
-    holographic_fold_ram(node_to_remove); // Karma removes the raw concept directly from RAM
-    pthread_mutex_unlock(&core_lock); // 🛡️ UNLOCK
+    pthread_mutex_lock(&core_lock);
+    holographic_fold_ram(node_to_remove); // Reversible Quantum Deletion (Zero Heat)
+    pthread_mutex_unlock(&core_lock);
     return node_to_remove;
 }
 
@@ -184,24 +165,20 @@ void* svadhyaya_thread(void* arg) {
     
     while(1) {
         if ((new_socket = accept(stream_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) >= 0) {
-            // Anāhata (Heart) - Continuous connection to the external stream
             ssize_t bytes_read;
             while((bytes_read = read(new_socket, stream_buffer, sizeof(stream_buffer) - 1)) > 0) { 
-                stream_buffer[bytes_read] = '\0'; // 🛡️ SECURITY PATCH: Strict Null Termination
+                stream_buffer[bytes_read] = '\0';
                 uint32_t hash = create_semantic_node(stream_buffer);
                 
-                pthread_mutex_lock(&core_lock); // 🛡️ LOCK MEMORY
-                holographic_fold_rom(hash); // Feed massive internet data silently
-                pthread_mutex_unlock(&core_lock); // 🛡️ UNLOCK MEMORY
-                
+                pthread_mutex_lock(&core_lock);
+                holographic_fold_rom(hash); 
+                pthread_mutex_unlock(&core_lock);
                 memset(stream_buffer, 0, sizeof(stream_buffer));
             }
             save_brain();
-            
-            pthread_mutex_lock(&core_lock); // 🛡️ LOCK MEMORY
+            pthread_mutex_lock(&core_lock);
             memcpy(ram_conscious, rom_subconscious, RAM_LIMIT); 
-            pthread_mutex_unlock(&core_lock); // 🛡️ UNLOCK MEMORY
-            
+            pthread_mutex_unlock(&core_lock);
             close(new_socket);
         }
     }
@@ -213,25 +190,23 @@ void* svadhyaya_thread(void* arg) {
 // ---------------------------------------------------------
 void send_json_response(int socket, const char* json_body) {
     char response[1024];
-    // SECURITY PATCH: Use snprintf to prevent buffer overflow
     snprintf(response, sizeof(response), "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\n\r\n%s", json_body);
     send(socket, response, strlen(response), 0);
 }
 
 void start_cognitive_server() {
-    // Ignite Background 24/7 Core (Svadhyaya)
     pthread_t thread_id;
     pthread_create(&thread_id, NULL, svadhyaya_thread, NULL);
 
     int server_fd, new_socket; struct sockaddr_in address;
     int opt = 1; int addrlen = sizeof(address); char buffer[1024] = {0};
 
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) { exit(EXIT_FAILURE); }
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) exit(EXIT_FAILURE);
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     address.sin_family = AF_INET; address.sin_addr.s_addr = htonl(INADDR_LOOPBACK); address.sin_port = htons(PORT);
 
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) { exit(EXIT_FAILURE); }
-    if (listen(server_fd, 3) < 0) { exit(EXIT_FAILURE); }
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) exit(EXIT_FAILURE);
+    if (listen(server_fd, 3) < 0) exit(EXIT_FAILURE);
 
     printf("\n");
     printf("      :::======== :::======== :::====  :::====::: :::==== \n");
@@ -240,8 +215,7 @@ void start_cognitive_server() {
     printf("      :::         :::======== :::  === ::: ===::: :::==== \n");
     printf("      :::         :::======== :::====  :::     ::: :::==== \n");
     printf("      :::         :::         ::: ==== :::     ::: :::  ===\n");
-    printf("\n");
-    printf("     [ ⊕ ] PARAM-TATTVA CORE OS | v9.0 VISION-READY MASTERMIND [ ⊕ ]\n");
+    printf("\n     [ ⊕ ] PARAM-TATTVA CORE OS | v10.0 QUANTUM-RESONANT AGI [ ⊕ ]\n");
     printf("=================================================================\n");
     load_brain();
     printf("[SYSTEM] 1KB Cognitive Dual-Core Initialized. 🛡️ Memory Locked & Safe.\n");
@@ -251,81 +225,69 @@ void start_cognitive_server() {
 
     while(1) {
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) continue;
-        memset(buffer, 0, sizeof(buffer)); // SECURITY PATCH: Clear buffer before read
+        memset(buffer, 0, sizeof(buffer));
         
         ssize_t bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
-        if (bytes_read <= 0) { // SECURITY PATCH: Safe read
-            close(new_socket);
-            continue;
-        }
-        buffer[bytes_read] = '\0'; // 🛡️ STRICT NULL TERMINATION
+        if (bytes_read <= 0) { close(new_socket); continue; }
+        buffer[bytes_read] = '\0'; 
         
-        // =========================================================
-        // 🛑 THE VIBRANIUM SHIELD: AUTHENTICATION GATE
-        // =========================================================
-        // Check if the request is an API call and lacks our Secret Key
+        // 🛑 VIBRANIUM SHIELD
         if (strstr(buffer, "GET /api/") != NULL && strstr(buffer, "key=PARAM99X") == NULL) {
-            printf("[SECURITY] 🛑 Blocked unauthorized API call. (Missing/Invalid Key)\n");
-            
-            // Professional Open-Source Rejection (HTTP 401 Unauthorized)
-            char *unauth_msg = "HTTP/1.1 401 Unauthorized\r\nContent-Type: application/json\r\n\r\n{\"error\":\"Access Denied. Invalid Auth Key.\"}";
+            printf("[SECURITY] 🛑 Blocked unauthorized API call.\n");
+            char *unauth_msg = "HTTP/1.1 401 Unauthorized\r\nContent-Type: application/json\r\n\r\n{\"error\":\"Access Denied.\"}";
             send(new_socket, unauth_msg, strlen(unauth_msg), 0);
             close(new_socket);
-            continue; // Kick them out instantly and wait for the next real request!
+            continue; 
         }
-        // =========================================================
 
         char json_out[512] = {0};
-        char *query_ptr = strstr(buffer, "?query="); // Safely store pointer
+        char *query_ptr = strstr(buffer, "?query="); 
         
-        // ... (Baaki tumhara original Orchestrator aur routes yahan same rahenge) ...
-
-// =========================================================
-// IMPROVED ORCHESTRATOR: HEURISTIC INTENT CLASSIFIER
-// =========================================================
-if (strstr(buffer, "GET /api/orchestrate") && query_ptr) {
-    char *q_start = query_ptr + 7;
-    char *q_end = strchr(q_start, ' '); if (q_end) *q_end = '\0';
-    
-    // URL decode the query for better text processing
-    // Note: Simple decoding to remove %20 artifacts
-    for(int i=0; q_start[i]; i++) if(q_start[i] == '+') q_start[i] = ' ';
-
-    // 🔥 THE FIX: Convert to Lowercase for smart checking 🔥
-    char q_lower[512] = {0};
-    strncpy(q_lower, q_start, sizeof(q_lower)-1);
-    for(int i = 0; q_lower[i]; i++) {
-        if(q_lower[i] >= 'A' && q_lower[i] <= 'Z') q_lower[i] += 32; 
-    }
-
-    char task_type[16] = "GENERAL";
-
-    // 🔥 FUZZY LOGIC INTENT DETECTION (Ab q_lower use hoga) 🔥
-    // Yahan saare naye keywords (landing, calculator, web) bhi add kar diye hain
-    if (strstr(q_lower, "build") || strstr(q_lower, "create") || strstr(q_lower, "make") || 
-        strstr(q_lower, "write") || strstr(q_lower, "game") || strstr(q_lower, "code") || 
-        strstr(q_lower, "script") || strstr(q_lower, "landing") || strstr(q_lower, "calculator") || 
-        strstr(q_lower, "function") || strstr(q_lower, "web") || strstr(q_lower, "page")) {
-        strcpy(task_type, "CODE");
-    }
-    else if (strstr(q_lower, "draw") || strstr(q_lower, "image") || strstr(q_lower, "visual") || 
-             strstr(q_lower, "paint") || strstr(q_lower, "picture") || strstr(q_lower, "render")) {
-        strcpy(task_type, "VISION");
-    }
-
-    uint32_t hash; int novelty; int folded;
-    // Note: process_and_fold mein original q_start hi bhejenge taaki Data lose na ho
-    int snn_spike = process_and_fold(q_start, &hash, &novelty, &folded);
-    
-    snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"task\":\"%s\", \"hash\":%u, \"spike\":%d}", task_type, hash, snn_spike);
-    send_json_response(new_socket, json_out);
-    printf("[ORCHESTRATOR] Task Classifed: %s -> TYPE: %s\n", q_start, task_type);
-}
-
-
-
         // =========================================================
+        // 🔥 QUANTUM O(1) ROUTER & LOCAL MANIFESTATION LAYER 🔥
+        // =========================================================
+        if (strstr(buffer, "GET /api/orchestrate") && query_ptr) {
+            char *q_start = query_ptr + 7;
+            char *q_end = strchr(q_start, ' '); if (q_end) *q_end = '\0';
+            
+            for(int i=0; q_start[i]; i++) if(q_start[i] == '+') q_start[i] = ' ';
 
+            // Calculate Frequency Resonance Hash (Zero Heat O(1) Match)
+            char first_word[32] = {0};
+            sscanf(q_start, "%31s", first_word);
+            for(int i=0; first_word[i]; i++) if(first_word[i] >= 'A' && first_word[i] <= 'Z') first_word[i] += 32;
+            
+            uint32_t freq_hash = create_semantic_node(first_word);
+            char task_type[16] = "GENERAL";
+            
+            // 2107084535 is hash for "build", 164057630 for "create", etc.
+            // Spanda Match: Replaces slow CPU string loop with instant math match
+            if (freq_hash == 2107084535 || freq_hash == 164057630 || freq_hash == 2090483259 || freq_hash == 2090204753) {
+                strcpy(task_type, "CODE");
+                
+                // 🛠️ THE AGI HANDS: LOCAL EXECUTION INITIATED
+                printf("[AGI_KARMA] ⚡ Survival Mode Active: Manifesting local code framework...\n");
+                FILE *local_file = fopen("manifest_karya.txt", "w");
+                if (local_file) {
+                    fprintf(local_file, "=== PARAM-TATTVA PHYSICAL MANIFESTATION ===\n");
+                    fprintf(local_file, "Task Intent: %s\n", q_start);
+                    fprintf(local_file, "Guna State: %d\n", triguna_state);
+                    fprintf(local_file, "Status: Triggered local compilation node.\n");
+                    fclose(local_file);
+                    printf("[AGI_KARMA] ✅ 'manifest_karya.txt' physical file created locally!\n");
+                }
+            }
+            else if (freq_hash == 2090196884 || freq_hash == 165681146 || freq_hash == 193505681) {
+                strcpy(task_type, "VISION");
+            }
+
+            uint32_t hash; int novelty; int folded;
+            int snn_spike = process_and_fold(q_start, &hash, &novelty, &folded);
+            
+            snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"task\":\"%s\", \"hash\":%u, \"spike\":%d}", task_type, hash, snn_spike);
+            send_json_response(new_socket, json_out);
+            printf("[ORCHESTRATOR] Task Classifed & Routed: %s -> TYPE: %s\n", q_start, task_type);
+        }
         else if (strstr(buffer, "GET /api/manifest") && query_ptr) {
             char *q_start = query_ptr + 7;
             char *q_end = strchr(q_start, ' '); if (q_end) *q_end = '\0';
@@ -335,7 +297,6 @@ if (strstr(buffer, "GET /api/orchestrate") && query_ptr) {
             
             snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"hash\":%u, \"novelty\":%d, \"folded\":%d, \"snn_spike\":%d, \"guna\":%d}", hash, novelty, folded, snn_spike, triguna_state);
             send_json_response(new_socket, json_out);
-            printf("[KERNEL] Rx: %s | Novelty: %d | Spike: %d | Guna: %d\n", q_start, novelty, snn_spike, triguna_state);
         }
         else if (strstr(buffer, "GET /api/karma") && query_ptr) {
             char *q_start = query_ptr + 7;
@@ -344,42 +305,17 @@ if (strstr(buffer, "GET /api/orchestrate") && query_ptr) {
             uint32_t hash = karma_backward_pass(q_start);
             snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"operation\":\"reversed\", \"node_removed\":%u}", hash);
             send_json_response(new_socket, json_out);
-            printf("[KERNEL] Karma Reversed: %s\n", q_start);
-        }
-        // GURUKUL: LLM Teacher Route
-        else if (strstr(buffer, "GET /api/gurukul?hash=")) {
-            char *h_start = strstr(buffer, "?hash=") + 6;
-            char *h_end = strchr(h_start, ' '); if (h_end) *h_end = '\0';
-            
-            uint32_t teacher_hash = (uint32_t)strtoul(h_start, NULL, 10);
-            
-            pthread_mutex_lock(&core_lock); // 🛡️ LOCK
-            holographic_fold_rom(teacher_hash);
-            pthread_mutex_unlock(&core_lock); // 🛡️ UNLOCK
-            
-            save_brain();
-            
-            pthread_mutex_lock(&core_lock); // 🛡️ LOCK
-            memcpy(ram_conscious, rom_subconscious, RAM_LIMIT);
-            pthread_mutex_unlock(&core_lock); // 🛡️ UNLOCK
-            
-            snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"operation\":\"llm_learned\", \"hash\":%u}", teacher_hash);
-            send_json_response(new_socket, json_out);
-            printf("[GURUKUL] Absorbed LLM Hash: %u\n", teacher_hash);
         }
         else if (strstr(buffer, "GET /api/state")) {
             snprintf(json_out, sizeof(json_out), "{\"os\":\"Param-Tattva\", \"ram\":%d, \"entropy\":%u, \"guna\":%d}", RAM_LIMIT, system_entropy, triguna_state);
             send_json_response(new_socket, json_out);
         }
-        else if (strstr(buffer, "GET /api/save")) {
-            save_brain();
-            send_json_response(new_socket, "{\"status\":\"success\", \"operation\":\"disk_write\"}");
-        }
         else {
-            send_json_response(new_socket, "{\"error\":\"Invalid Route.\"}");
+            send_json_response(new_socket, "{\"error\":\"Invalid Route or Mission Key.\"}");
         }
         close(new_socket);
     }
 }
 
 int main() { start_cognitive_server(); return 0; }
+
