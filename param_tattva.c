@@ -227,31 +227,39 @@ void start_cognitive_server() {
         char json_out[512] = {0};
         char *query_ptr = strstr(buffer, "?query="); // Safely store pointer
 
-        // =========================================================
-        // NEW MODULE: THE ORCHESTRATOR ROUTE (FOR AI BRIDGE)
-        // =========================================================
-        if (strstr(buffer, "GET /api/orchestrate") && query_ptr) {
-            char *q_start = query_ptr + 7;
-            char *q_end = strchr(q_start, ' '); if (q_end) *q_end = '\0';
-            
-            // Task Divider Logic: Decide if user wants CODE, VISION, or normal chat
-            char task_type[16] = "GENERAL";
-            
-            if (strstr(q_start, "code") || strstr(q_start, "app") || strstr(q_start, "build") || strstr(q_start, "fix") || strstr(q_start, "script")) {
-                strcpy(task_type, "CODE");
-            }
-            // 🔥 NAYA VISION ROUTER (PHASE 2) 🔥
-            else if (strstr(q_start, "draw") || strstr(q_start, "image") || strstr(q_start, "paint") || strstr(q_start, "picture")) {
-                strcpy(task_type, "VISION");
-            }
+// =========================================================
+// IMPROVED ORCHESTRATOR: HEURISTIC INTENT CLASSIFIER
+// =========================================================
+if (strstr(buffer, "GET /api/orchestrate") && query_ptr) {
+    char *q_start = query_ptr + 7;
+    char *q_end = strchr(q_start, ' '); if (q_end) *q_end = '\0';
+    
+    // URL decode the query for better text processing
+    // Note: Simple decoding to remove %20 artifacts
+    for(int i=0; q_start[i]; i++) if(q_start[i] == '+') q_start[i] = ' ';
 
-            uint32_t hash; int novelty; int folded;
-            int snn_spike = process_and_fold(q_start, &hash, &novelty, &folded);
-            
-            snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"task\":\"%s\", \"hash\":%u, \"spike\":%d}", task_type, hash, snn_spike);
-            send_json_response(new_socket, json_out);
-            printf("[ORCHESTRATOR] Task Classifed: %s -> TYPE: %s\n", q_start, task_type);
-        }
+    char task_type[16] = "GENERAL";
+
+    // FUZZY LOGIC INTENT DETECTION
+    // Check for Action Verbs instead of just keywords
+    if (strstr(q_start, "build") || strstr(q_start, "create") || strstr(q_start, "make") || 
+        strstr(q_start, "write") || strstr(q_start, "game") || strstr(q_start, "code") || 
+        strstr(q_start, "function") || strstr(q_start, "script")) {
+        strcpy(task_type, "CODE");
+    }
+    else if (strstr(q_start, "draw") || strstr(q_start, "image") || strstr(q_start, "visual") || 
+             strstr(q_start, "paint") || strstr(q_start, "picture") || strstr(q_start, "render")) {
+        strcpy(task_type, "VISION");
+    }
+
+    uint32_t hash; int novelty; int folded;
+    int snn_spike = process_and_fold(q_start, &hash, &novelty, &folded);
+    
+    snprintf(json_out, sizeof(json_out), "{\"status\":\"success\", \"task\":\"%s\", \"hash\":%u, \"spike\":%d}", task_type, hash, snn_spike);
+    send_json_response(new_socket, json_out);
+    printf("[ORCHESTRATOR] Task Classifed: %s -> TYPE: %s\n", q_start, task_type);
+}
+
         // =========================================================
 
         else if (strstr(buffer, "GET /api/manifest") && query_ptr) {
