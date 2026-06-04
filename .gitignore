@@ -1,2 +1,22 @@
+# 1. Compiled C Binaries
+param-tattva
+param_tattva
+*.out
+*.exe
+
+# 2. Local OS Memory State
+brain.bin
+
+# 3. Heavy AI Models (Never upload to GitHub)
+*.gguf
 model.gguf
+
+# 4. Nano Editor Temp & Junk Files
+*#*
+*~
+.*.swp
+
+# 5. Python Cache Files
 __pycache__/
+*.pyc
+
