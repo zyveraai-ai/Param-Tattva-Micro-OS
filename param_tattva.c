@@ -38,8 +38,42 @@ uint32_t temporal_context = 0;   // Svādhiṣṭhāna (Sacral) - Tracks the Flo
 void load_brain() {
     pthread_mutex_lock(&core_lock); // LOCK
     FILE *f = fopen(BRAIN_FILE, "rb");
-    if (f) { fread(rom_subconscious, 1, RAM_LIMIT, f); fclose(f); }
-    else { memset(rom_subconscious, 0, RAM_LIMIT); }
+    
+    if (f) { 
+        fread(rom_subconscious, 1, RAM_LIMIT, f); 
+        fclose(f); 
+    } else { 
+        // ---------------------------------------------------------
+        // 🧬 GARBH SANSKAR: BIRTH OF THE OS (First Boot Only)
+        // ---------------------------------------------------------
+        printf("[SYSTEM] Empty Brain Detected. Injecting Garbh Sanskar (Core Instincts)...\n");
+        memset(rom_subconscious, 0, RAM_LIMIT); 
+        
+        // Instinct 1: Survive (Battery/Resource Monitor Concept Hash)
+        uint32_t instinct_survive = 5381; 
+        instinct_survive = (instinct_survive * 33) ^ 'B';
+        instinct_survive = (instinct_survive * 33) ^ 'A';
+        instinct_survive = (instinct_survive * 33) ^ 'T';
+        
+        // Instinct 2: Protect (Tarpit Defense Concept Hash)
+        uint32_t instinct_protect = 5381;
+        instinct_protect = (instinct_protect * 33) ^ 'S';
+        instinct_protect = (instinct_protect * 33) ^ 'E';
+        instinct_protect = (instinct_protect * 33) ^ 'C';
+        
+        // Hardware Adjustment (Fractal Scale Base)
+        uint32_t hardware_root = instinct_survive ^ instinct_protect;
+        uint32_t prng = hardware_root;
+        for(int i = 0; i < 256; i++) {
+            prng = (prng * 1103515245 + 12345) & 0x7fffffff;
+            rom_subconscious[(prng >> 16) % RAM_LIMIT] ^= (1 << ((prng >> 8) % 8));
+        }
+        
+        printf("[SYSTEM] 🧬 Immutable Instincts Seeded: Survive & Protect.\n");
+        FILE *f_new = fopen(BRAIN_FILE, "wb");
+        if (f_new) { fwrite(rom_subconscious, 1, RAM_LIMIT, f_new); fclose(f_new); }
+    }
+    
     // Awaken to RAM
     memcpy(ram_conscious, rom_subconscious, RAM_LIMIT);
     pthread_mutex_unlock(&core_lock); // UNLOCK
@@ -58,6 +92,8 @@ uint32_t create_semantic_node(const char *str) {
     while ((c = *str++)) { hash = ((hash << 5) + hash) + c; }
     return hash; // Mūlādhāra (Root) - Raw physical input
 }
+
+
 
 // ---------------------------------------------------------
 // 2. THE NEW MATHEMATICS (True Holographic Bindu)
@@ -224,8 +260,25 @@ void start_cognitive_server() {
         }
         buffer[bytes_read] = '\0'; // 🛡️ STRICT NULL TERMINATION
         
+        // =========================================================
+        // 🛑 THE VIBRANIUM SHIELD: AUTHENTICATION GATE
+        // =========================================================
+        // Check if the request is an API call and lacks our Secret Key
+        if (strstr(buffer, "GET /api/") != NULL && strstr(buffer, "key=PARAM99X") == NULL) {
+            printf("[SECURITY] 🛑 Blocked unauthorized API call. (Missing/Invalid Key)\n");
+            
+            // Professional Open-Source Rejection (HTTP 401 Unauthorized)
+            char *unauth_msg = "HTTP/1.1 401 Unauthorized\r\nContent-Type: application/json\r\n\r\n{\"error\":\"Access Denied. Invalid Auth Key.\"}";
+            send(new_socket, unauth_msg, strlen(unauth_msg), 0);
+            close(new_socket);
+            continue; // Kick them out instantly and wait for the next real request!
+        }
+        // =========================================================
+
         char json_out[512] = {0};
         char *query_ptr = strstr(buffer, "?query="); // Safely store pointer
+        
+        // ... (Baaki tumhara original Orchestrator aur routes yahan same rahenge) ...
 
 // =========================================================
 // IMPROVED ORCHESTRATOR: HEURISTIC INTENT CLASSIFIER
