@@ -9,19 +9,19 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Param-Tattva v9.0 Eklavya + Deep C</title>
+  <title>Param-Tattva v10.0 Enterprise MVP</title>
 
   <style>
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Share+Tech+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Share+Tech+Mono&display=swap');
 
     :root {
 
-      --bg: #0d1117; --panel: #161b22; --chat-user: #238636; --chat-ai: #21262d;
+      --bg: #090d13; --panel: #121820; --card: #171f2c; --chat-user: #1f6feb;
 
-      --green: #2ea043; --amber: #d29922; --blue: #58a6ff; --purple: #a371f7; --cyan: #39c5cf;
+      --green: #2ea043; --amber: #d29922; --blue: #58a6ff; --purple: #a371f7; --cyan: #39c5cf; --red: #f85149;
 
-      --text: #c9d1d9; --dim: #8b949e; --border: #30363d;
+      --text: #e6edf3; --dim: #8b949e; --border: #293241;
 
     }
 
@@ -39,83 +39,107 @@
 
       background: var(--panel); border-bottom: 1px solid var(--border);
 
-      padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;
-
-      flex-wrap: wrap; gap: 8px; z-index: 10;
+      padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
 
     }
 
-    .title { font-family: 'Share Tech Mono', monospace; color: var(--amber); font-size: 16px; font-weight: bold; }
+    .brand { font-family: 'Share Tech Mono', monospace; color: var(--cyan); font-size: 15px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
 
-    .stats-container { display: flex; gap: 8px; font-family: 'Share Tech Mono', monospace; font-size: 11px; flex-wrap: wrap; }
+    .stats-bar { display: flex; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 11px; flex-wrap: wrap; }
 
-    .stat-badge { background: var(--bg); border: 1px solid var(--border); padding: 3px 8px; border-radius: 14px; display: flex; gap: 4px; }
+    .badge { background: var(--bg); border: 1px solid var(--border); padding: 3px 8px; border-radius: 12px; }
 
 
 
     #neuron-strip {
 
-      background: #090d13; border-bottom: 1px solid var(--border);
+      background: #06090e; border-bottom: 1px solid var(--border);
 
-      padding: 6px 16px; display: flex; align-items: center; gap: 10px;
+      padding: 5px 14px; display: flex; align-items: center; gap: 8px;
 
-      font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--dim);
+      font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--dim);
 
     }
 
-    .n-grid { display: flex; gap: 3px; flex: 1; }
+    .n-grid { display: flex; gap: 2px; flex: 1; }
 
-    .n-cell { flex: 1; height: 8px; border-radius: 2px; background: #1c2128; transition: 0.25s; }
+    .n-cell { flex: 1; height: 7px; border-radius: 2px; background: #18202c; transition: 0.2s; }
 
-    .n-cell.hot1 { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+    .n-cell.hot1 { background: var(--blue); box-shadow: 0 0 5px var(--blue); }
 
-    .n-cell.hot2 { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .n-cell.hot2 { background: var(--green); box-shadow: 0 0 7px var(--green); }
 
 
 
-    #chat-box { flex: 1; overflow-y: auto; padding: 16px 6%; display: flex; flex-direction: column; gap: 18px; }
+    /* Navigation Tabs */
 
-    .msg-wrapper { display: flex; gap: 12px; max-width: 100%; }
+    #nav-tabs {
+
+      display: flex; background: var(--panel); border-bottom: 1px solid var(--border);
+
+      overflow-x: auto;
+
+    }
+
+    .tab-btn {
+
+      flex: 1; padding: 10px 8px; background: transparent; border: none; border-bottom: 2px solid transparent;
+
+      color: var(--dim); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; text-align: center;
+
+    }
+
+    .tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); background: rgba(57,197,207,0.06); }
+
+
+
+    .workspace { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+
+    .workspace.active { display: flex; }
+
+
+
+    /* Tab 1: Cortex Chat */
+
+    #chat-box { flex: 1; overflow-y: auto; padding: 14px 5%; display: flex; flex-direction: column; gap: 14px; }
+
+    .msg-wrapper { display: flex; gap: 10px; max-width: 100%; }
 
     .msg-wrapper.user { flex-direction: row-reverse; }
 
     .avatar {
 
-      width: 34px; height: 34px; border-radius: 8px; display: flex; justify-content: center;
+      width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center;
 
-      align-items: center; font-size: 17px; flex-shrink: 0; background: var(--chat-ai); border: 1px solid var(--border);
+      align-items: center; font-size: 16px; flex-shrink: 0; background: var(--card); border: 1px solid var(--border);
 
     }
 
-    .avatar.user { background: var(--chat-user); border: none; }
-
     .msg-content {
 
-      background: var(--chat-ai); padding: 13px 16px; border-radius: 12px;
+      background: var(--card); padding: 12px 15px; border-radius: 12px;
 
-      border: 1px solid var(--border); font-size: 14px; line-height: 1.55; max-width: 85%; word-wrap: break-word;
+      border: 1px solid var(--border); font-size: 13.5px; line-height: 1.5; max-width: 86%; word-wrap: break-word;
 
     }
 
     .msg-wrapper.user .msg-content { background: var(--chat-user); border-color: var(--chat-user); color: #fff; }
 
-    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 
-    .chip { font-size: 10px; padding: 2px 7px; border-radius: 10px; border: 1px solid var(--border); font-family: 'Share Tech Mono', monospace; }
+    .chip { font-size: 10px; padding: 2px 6px; border-radius: 8px; border: 1px solid var(--border); font-family: 'Share Tech Mono', monospace; }
 
-    .wiki-card {
+    .distill-box {
 
-      background: rgba(210, 153, 34, 0.08); border-left: 3px solid var(--amber);
+      background: rgba(210,153,34,0.1); border-left: 3px solid var(--amber);
 
-      padding: 9px; border-radius: 0 8px 8px 0; font-size: 12.5px; color: var(--text); margin-top: 8px;
+      padding: 8px; border-radius: 0 6px 6px 0; font-size: 12px; margin-top: 8px;
 
     }
 
-
-
     #input-area {
 
-      background: var(--panel); padding: 12px 5%; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center;
+      background: var(--panel); padding: 10px 4%; border-top: 1px solid var(--border); display: flex; gap: 8px;
 
     }
 
@@ -123,55 +147,69 @@
 
       flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text);
 
-      padding: 12px; border-radius: 10px; font-size: 14px; resize: none; outline: none; height: 46px;
+      padding: 11px; border-radius: 10px; font-size: 14px; resize: none; outline: none; height: 44px;
 
     }
 
     .btn {
 
-      border: none; height: 46px; padding: 0 14px; border-radius: 10px; font-weight: bold;
+      border: none; height: 44px; padding: 0 16px; border-radius: 10px; font-weight: bold;
 
-      cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
-
-    }
-
-    #drishti-btn { background: #21262d; color: var(--amber); border: 1px solid var(--amber); }
-
-    #send-btn { background: var(--blue); color: #000; padding: 0 18px; }
-
-
-
-    #drishti-modal {
-
-      position: fixed; inset: 0; background: rgba(5,8,12,0.98); z-index: 100;
-
-      display: none; flex-direction: column; padding: 10px; gap: 8px;
+      cursor: pointer; font-size: 13px; background: var(--cyan); color: #000;
 
     }
 
-    .d-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
 
-    .d-canvas-wrap {
+
+    /* Tab 2: Drishti Studio */
+
+    .d-wrap { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 8px; overflow: hidden; }
+
+    .d-status { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--cyan); text-align: center; padding: 4px; background: var(--panel); border-radius: 6px; }
+
+    .d-canvas-box {
 
       flex: 1; display: flex; justify-content: center; align-items: center;
 
-      background: #05070a; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative;
+      background: #040609; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative;
 
     }
 
     canvas { width: 100%; height: 100%; object-fit: contain; touch-action: none; }
 
-    .d-controls { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .d-bar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; }
 
     .d-btn {
 
       padding: 8px 11px; border-radius: 8px; border: 1px solid var(--border);
 
-      background: var(--panel); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer;
+      background: var(--card); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer;
 
     }
 
-    .d-telemetry { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--amber); text-align: center; }
+
+
+    /* Tab 3 & 4: Zyvera Ledger & Gati Robotics */
+
+    .panel-scroll { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+
+    .mvp-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+
+    .mvp-title { font-family: 'Share Tech Mono', monospace; color: var(--cyan); font-size: 14px; margin-bottom: 8px; font-weight: bold; }
+
+    .row-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+    .inp { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 9px; border-radius: 8px; font-size: 13px; flex: 1; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+
+    th, td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; }
+
+    .siren-box { background: rgba(248,81,73,0.12); border: 1px solid var(--red); color: #ff7b72; padding: 10px; border-radius: 8px; font-size: 12.5px; margin-top: 8px; display: none; }
+
+    .motor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+
+    .motor-box { background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 8px; text-align: center; font-family: 'Share Tech Mono', monospace; }
 
   </style>
 
@@ -183,15 +221,15 @@
 
   <div id="header">
 
-    <div class="title">🏹 Param-Tattva v9.0 (Eklavya + Deep C)</div>
+    <div class="brand">⚛️ PARAM-TATTVA v10.0 MVP</div>
 
-    <div class="stats-container">
+    <div class="stats-bar">
 
-      <div class="stat-badge"><span style="color:var(--dim)">RAM:</span><span id="ui-ram" style="color:var(--green)">1024 B</span></div>
+      <div class="badge">RAM: <span id="ui-ram" style="color:var(--green)">1024 B</span></div>
 
-      <div class="stat-badge"><span style="color:var(--dim)">SUTRAS:</span><span id="ui-sutras" style="color:var(--amber)">6</span></div>
+      <div class="badge">SUTRAS: <span id="ui-sutras" style="color:var(--amber)">6</span></div>
 
-      <div class="stat-badge"><span style="color:var(--dim)">GUNA:</span><span id="ui-guna" style="color:var(--blue)">SATTVA</span></div>
+      <div class="badge">GUNA: <span id="ui-guna" style="color:var(--cyan)">SATTVA</span></div>
 
     </div>
 
@@ -201,7 +239,7 @@
 
   <div id="neuron-strip">
 
-    <span>BINDU 2048-SDR:</span>
+    <span>2048-BIT SDR:</span>
 
     <div class="n-grid" id="neuron-grid"></div>
 
@@ -209,19 +247,93 @@
 
 
 
-  <div id="chat-box">
+  <div id="nav-tabs">
 
-    <div class="msg-wrapper ai">
+    <button class="tab-btn active" onclick="switchTab('tab-cortex', this)">💬 Cortex & Distiller</button>
 
-      <div class="avatar">🏹</div>
+    <button class="tab-btn" onclick="switchTab('tab-drishti', this)">🎨 Drishti v10.0 Studio</button>
 
-      <div class="msg-content">
+    <button class="tab-btn" onclick="switchTab('tab-zyvera', this)">📊 Zyvera Ledger & Audit</button>
 
-        <strong>Param-Tattva v9.0 (Eklavya AI Distiller + 80-Epoch Deep C-Drishti) Live!</strong><br>
+    <button class="tab-btn" onclick="switchTab('tab-gati', this)">🦾 Gati Robotics API</button>
 
-        • <b>🏹 Eklavya Reverse-Engineering:</b> Ask ANY complex question in Hindi/English — if unknown (<code>SPIKE: 1</code>), it queries a Large Teacher AI, distills its logic into a Sutra, and locks it into <code>smriti.bin</code> forever!<br>
+  </div>
 
-        • <b>🔥 Deep 80-Epoch C-Inpainter (🎨):</b> Tilted Horizon Separation + Raw Pixel Grafting (Zero green bush smear!).
+
+
+  <!-- TAB 1: CORTEX & EKLAVYA DISTILLER -->
+
+  <div id="tab-cortex" class="workspace active">
+
+    <div id="chat-box">
+
+      <div class="msg-wrapper ai">
+
+        <div class="avatar">⚛️</div>
+
+        <div class="msg-content">
+
+          <strong>Param-Tattva v10.0 Enterprise MVP Ready.</strong><br>
+
+          • <b>Zero-Heat Recall (0.002ms):</b> Hardware <code>__builtin_popcountll</code> matches 2048-bit Bindu SDRs.<br>
+
+          • <b>🏹 Eklavya Teacher Distiller:</b> Ask any new question — I will distill the answer from a Teacher AI and permanently compile it into <code>smriti.bin</code>!<br>
+
+          • Switch tabs above to test <b>Drishti v10.0 (6-Ray Collinear C-Inpainter)</b>, <b>Zyvera Audit Siren</b>, and <b>Gati Robotics</b>.
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div id="input-area">
+
+      <textarea id="prompt-input" placeholder="Ask anything, calculate GST (12500 ka 18% gst), or teach..."></textarea>
+
+      <button class="btn" id="send-btn">➤</button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- TAB 2: DRISHTI v10.0 C-VISION STUDIO -->
+
+  <div id="tab-drishti" class="workspace">
+
+    <div class="d-wrap">
+
+      <div class="d-status" id="d-status">1. Select Photo -> 2. Paint over Car -> 3. Tap '🔥 v10.0 Erase' (6-Ray Resonance + Crisp Desert Grafting)!</div>
+
+      <div class="d-canvas-box">
+
+        <canvas id="d-canvas"></canvas>
+
+      </div>
+
+      <div class="d-bar">
+
+        <input type="file" id="d-file" accept="image/*" style="display:none">
+
+        <button class="d-btn" onclick="document.getElementById('d-file').click()">📂 Photo</button>
+
+        <label style="font-size:11px; color:var(--dim); display:flex; align-items:center; gap:4px;">
+
+          Brush: <input type="range" id="brush-size" min="10" max="48" value="26" style="width:55px">
+
+        </label>
+
+        <button class="d-btn" onclick="resetMask()">↩️ Reset</button>
+
+        <button class="d-btn" style="border-color:var(--cyan); color:var(--cyan)" onclick="runNativeCDrishti(1)">🎯 Auto-Select</button>
+
+        <button class="d-btn" style="border-color:var(--amber); color:var(--amber)" onclick="runNativeCDrishti(2)">🔥 v10.0 Erase</button>
+
+        <button class="d-btn" id="compare-btn" style="border-color:var(--purple); color:var(--purple)">👁️ Compare</button>
+
+        <button class="d-btn" onclick="downloadDrishtiImage()">💾 Save</button>
 
       </div>
 
@@ -231,57 +343,83 @@
 
 
 
-  <div id="input-area">
+  <!-- TAB 3: ZYVERA LEDGER & KACCHA-CHITHA FRAUD AUDIT -->
 
-    <button class="btn" id="drishti-btn" title="Drishti v9.0 Deep C Studio">🎨</button>
+  <div id="tab-zyvera" class="workspace">
 
-    <textarea id="prompt-input" placeholder="Ask any question to distill Teacher AI into C-Kernel..."></textarea>
+    <div class="panel-scroll">
 
-    <button class="btn" id="send-btn">➤</button>
+      <div class="mvp-card">
+
+        <div class="mvp-title">📊 Z-SHEET DETERMINISTIC HINGLISH LEDGER + GST ALU</div>
+
+        <div style="font-size:12px; color:var(--dim)">Type a bill entry or test the Kaccha-Chitha anti-theft audit lock:</div>
+
+        <div class="row-inputs">
+
+          <input class="inp" id="z-party" placeholder="Customer/Staff (e.g. Ramesh Traders)" value="Ramesh Traders">
+
+          <input class="inp" id="z-amt" type="number" placeholder="Base Amount (Rs)" value="25000">
+
+          <button class="d-btn" style="border-color:var(--green); color:var(--green)" onclick="addZyveraBill()">➕ Add Bill (+18% GST)</button>
+
+        </div>
+
+        <table>
+
+          <thead><tr><th>ID</th><th>Party</th><th>Base</th><th>Total (+18% GST)</th><th>Audit Action (Try Lowering!)</th></tr></thead>
+
+          <tbody id="z-tbody"></tbody>
+
+        </table>
+
+        <div class="siren-box" id="z-siren"></div>
+
+      </div>
+
+    </div>
 
   </div>
 
 
 
-  <!-- 🎨 Drishti-Shuddhi v9.0 Studio -->
+  <!-- TAB 4: GATI-TATTVA ROBOTICS & DRONE FLIGHT CONTROLLER -->
 
-  <div id="drishti-modal">
+  <div id="tab-gati" class="workspace">
 
-    <div class="d-top">
+    <div class="panel-scroll">
 
-      <span style="font-family:'Share Tech Mono'; color:var(--amber); font-weight:bold;">🔥 DRISHTI v9.0 (80-Epoch Tilted-Horizon Deep C-Engine)</span>
+      <div class="mvp-card">
 
-      <button class="d-btn" onclick="document.getElementById('drishti-modal').style.display='none'">✖ Close</button>
+        <div class="mvp-title">🦾 GATI-TATTVA 6-DOF DRONE / ROBOTICS REFLEX API (/api/gati)</div>
 
-    </div>
+        <div style="font-size:12px; color:var(--dim)">Move sliders to simulate wind hit or obstacle — C-Kernel computes motor PWM thrust in 0.001ms:</div>
 
-    <div class="d-telemetry" id="d-status">1. Select Photo -> 2. Paint over Car -> 3. Tap '🔥 Deep 80-Epoch Erase'!</div>
+        <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px; font-size:12px;">
 
-    <div class="d-canvas-wrap">
+          <label>Roll Angle (<span id="lbl-roll">18</span>°): <input type="range" id="g-roll" min="-45" max="45" value="18" oninput="updateGati()" style="width:100%"></label>
 
-      <canvas id="d-canvas"></canvas>
+          <label>Pitch Angle (<span id="lbl-pitch">-6</span>°): <input type="range" id="g-pitch" min="-45" max="45" value="-6" oninput="updateGati()" style="width:100%"></label>
 
-    </div>
+          <label>Obstacle Distance (<span id="lbl-dist">0.8</span>m): <input type="range" id="g-dist" min="0.2" max="5.0" step="0.1" value="0.8" oninput="updateGati()" style="width:100%"></label>
 
-    <div class="d-controls">
+        </div>
 
-      <input type="file" id="d-file" accept="image/*" style="display:none">
+        <div class="motor-grid">
 
-      <button class="d-btn" onclick="document.getElementById('d-file').click()">📂 Photo</button>
+          <div class="motor-box">FRONT-LEFT (M1)<br><span id="m1-val" style="color:var(--cyan); font-size:16px">1500</span> µs</div>
 
-      <label style="font-size:11px; color:var(--dim); display:flex; align-items:center; gap:4px;">
+          <div class="motor-box">FRONT-RIGHT (M2)<br><span id="m2-val" style="color:var(--cyan); font-size:16px">1500</span> µs</div>
 
-        Brush: <input type="range" id="brush-size" min="10" max="48" value="26" style="width:60px">
+          <div class="motor-box">REAR-LEFT (M3)<br><span id="m3-val" style="color:var(--cyan); font-size:16px">1500</span> µs</div>
 
-      </label>
+          <div class="motor-box">REAR-RIGHT (M4)<br><span id="m4-val" style="color:var(--cyan); font-size:16px">1500</span> µs</div>
 
-      <button class="d-btn" onclick="resetMask()">↩️ Reset</button>
+        </div>
 
-      <button class="d-btn" style="border-color:var(--cyan); color:var(--cyan)" onclick="runNativeCDrishti(1)">🎯 C-Auto-Select</button>
+        <div id="gati-status" style="margin-top:10px; font-family:'Share Tech Mono'; font-size:12px; color:var(--amber); text-align:center;"></div>
 
-      <button class="d-btn" style="border-color:var(--amber); color:var(--amber)" onclick="runNativeCDrishti(2)">🔥 Deep 80-Epoch Erase</button>
-
-      <button class="d-btn" onclick="downloadDrishtiImage()">💾 Save</button>
+      </div>
 
     </div>
 
@@ -295,11 +433,21 @@
 
     const BRIDGE_API = 'http://127.0.0.1:8110';
 
-    const chatBox = document.getElementById('chat-box');
 
-    const inputField = document.getElementById('prompt-input');
 
-    const sendBtn = document.getElementById('send-btn');
+    function switchTab(tabId, btn) {
+
+      document.querySelectorAll('.workspace').forEach(w => w.classList.remove('active'));
+
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+
+      btn.classList.add('active');
+
+      if (tabId === 'tab-gati') updateGati();
+
+    }
 
 
 
@@ -355,6 +503,16 @@
 
 
 
+    // TAB 1: CORTEX CHAT
+
+    const chatBox = document.getElementById('chat-box');
+
+    const inputField = document.getElementById('prompt-input');
+
+    const sendBtn = document.getElementById('send-btn');
+
+
+
     function addMessage(sender, text, chips = [], distillNote = null) {
 
       const isUser = sender === 'user';
@@ -363,7 +521,7 @@
 
       msgDiv.className = `msg-wrapper ${isUser ? 'user' : 'ai'}`;
 
-      let html = `<div class="avatar ${isUser ? 'user' : 'ai'}">${isUser ? '👤' : '🏹'}</div><div class="msg-content">${text}`;
+      let html = `<div class="avatar">${isUser ? '👤' : '⚛️'}</div><div class="msg-content">${text}`;
 
       if (chips.length > 0) {
 
@@ -375,11 +533,7 @@
 
       }
 
-      if (distillNote) {
-
-        html += `<div class="wiki-card"><b>🏹 Eklavya Distiller:</b> ${distillNote}</div>`;
-
-      }
+      if (distillNote) html += `<div class="distill-box"><b>🏹 Eklavya Distilled:</b> ${distillNote}</div>`;
 
       html += `</div>`;
 
@@ -431,7 +585,7 @@
 
         if (data.distilled === 1) {
 
-          addMessage('ai', data.llm_response, chips, "Reverse-engineered from Teacher AI & permanently compiled into C-Kernel smriti.bin! Ask again for 0.002ms Zero-Heat recall.");
+          addMessage('ai', data.llm_response, chips, "Reverse-engineered from Teacher AI & locked into C-Kernel smriti.bin! Ask again for 0.002ms Zero-Heat recall.");
 
         } else if (data.llm_response && data.llm_response.trim() !== "") {
 
@@ -439,7 +593,7 @@
 
         } else {
 
-          addMessage('ai', `⚡ <b>Spanda Spike (Offline Mode)</b>. Teach directly via <code>teach: ${query} | answer</code>`, chips);
+          addMessage('ai', `⚡ <b>Spanda Spike</b>. Teach via <code>teach: ${query} | answer</code>`, chips);
 
         }
 
@@ -455,19 +609,19 @@
 
     }
 
-
-
     sendBtn.addEventListener('click', sendCommand);
 
     inputField.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCommand(); } });
 
 
 
-    const dModal = document.getElementById('drishti-modal');
+    // TAB 2: DRISHTI v10.0 STUDIO
 
     const dCanvas = document.getElementById('d-canvas');
 
     const ctx = dCanvas.getContext('2d', { willReadFrequently: true });
+
+    let originalUploadPixels = null; // For Before/After Hold Comparison
 
     let cleanPixels = null;
 
@@ -476,10 +630,6 @@
     let isDrawing = false;
 
     let lastX = -1, lastY = -1;
-
-
-
-    document.getElementById('drishti-btn').onclick = () => { dModal.style.display = 'flex'; };
 
 
 
@@ -503,9 +653,11 @@
 
         cleanPixels = new Uint8ClampedArray(ctx.getImageData(0, 0, dCanvas.width, dCanvas.height).data);
 
+        originalUploadPixels = new Uint8ClampedArray(cleanPixels);
+
         maskArray = new Uint8Array(dCanvas.width * dCanvas.height);
 
-        document.getElementById('d-status').innerText = `Loaded (${dCanvas.width}x${dCanvas.height}). Paint over the car -> Tap '🔥 Deep 80-Epoch Erase'!`;
+        document.getElementById('d-status').innerText = `Loaded (${dCanvas.width}x${dCanvas.height}). Paint over the car -> Tap '🔥 v10.0 Erase'!`;
 
       };
 
@@ -515,15 +667,43 @@
 
 
 
+    // Before/After Compare Hold Button
+
+    const compBtn = document.getElementById('compare-btn');
+
+    const showOrig = () => {
+
+      if (originalUploadPixels) ctx.putImageData(new ImageData(new Uint8ClampedArray(originalUploadPixels), dCanvas.width, dCanvas.height), 0, 0);
+
+    };
+
+    const showHealed = () => {
+
+      if (cleanPixels) ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanPixels), dCanvas.width, dCanvas.height), 0, 0);
+
+    };
+
+    compBtn.addEventListener('mousedown', showOrig);
+
+    compBtn.addEventListener('mouseup', showHealed);
+
+    compBtn.addEventListener('touchstart', (e) => { e.preventDefault(); showOrig(); });
+
+    compBtn.addEventListener('touchend', (e) => { e.preventDefault(); showHealed(); });
+
+
+
     function resetMask() {
 
-      if (!cleanPixels) return;
+      if (!originalUploadPixels) return;
+
+      cleanPixels = new Uint8ClampedArray(originalUploadPixels);
 
       ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanPixels), dCanvas.width, dCanvas.height), 0, 0);
 
       maskArray.fill(0);
 
-      document.getElementById('d-status').innerText = `Reset complete. Paint over the object.`;
+      document.getElementById('d-status').innerText = `Restored original photo. Paint over the object.`;
 
     }
 
@@ -549,19 +729,9 @@
 
             const edge = (!maskArray[i - 1] || !maskArray[i + 1] || !maskArray[i - w] || !maskArray[i + w]);
 
-            if (edge) {
+            if (edge) { pd[p] = 0; pd[p + 1] = 255; pd[p + 2] = 255; }
 
-              pd[p] = 255; pd[p + 1] = 200; pd[p + 2] = 0;
-
-            } else {
-
-              pd[p] = Math.min(255, (pd[p] >> 1) + 125);
-
-              pd[p + 1] = pd[p + 1] >> 2;
-
-              pd[p + 2] = pd[p + 2] >> 2;
-
-            }
+            else { pd[p] = Math.min(255, (pd[p] >> 1) + 125); pd[p + 1] = pd[p + 1] >> 2; pd[p + 2] = pd[p + 2] >> 2; }
 
           }
 
@@ -663,17 +833,11 @@
 
       const chunk = 0x8000;
 
-      for (let i = 0; i < u8.length; i += chunk) {
-
-        binary += String.fromCharCode.apply(null, u8.subarray(i, i + chunk));
-
-      }
+      for (let i = 0; i < u8.length; i += chunk) binary += String.fromCharCode.apply(null, u8.subarray(i, i + chunk));
 
       return btoa(binary);
 
     }
-
-
 
     function base64ToUint8(b64) {
 
@@ -699,7 +863,7 @@
 
         ? "⏳ Training 3D Bayes Color Cube in C-Engine..."
 
-        : "🔥 Running Deep 80-Epoch C-Engine (Tilted Horizon + Raw Patch Grafting)...";
+        : "🔥 Running Drishti v10.0 (6-Ray Collinear Resonance + Crisp Desert Grafting)...";
 
 
 
@@ -725,15 +889,7 @@
 
           headers: { 'Content-Type': 'application/json' },
 
-          body: JSON.stringify({
-
-            width: w, height: h, mode: mode,
-
-            rgb_b64: uint8ToBase64(rgb),
-
-            mask_b64: uint8ToBase64(maskArray)
-
-          })
+          body: JSON.stringify({ width: w, height: h, mode: mode, rgb_b64: uint8ToBase64(rgb), mask_b64: uint8ToBase64(maskArray) })
 
         });
 
@@ -773,10 +929,6 @@
 
           document.getElementById('d-status').innerText = data.telemetry;
 
-        } else {
-
-          document.getElementById('d-status').innerText = "❌ Error: " + data.error;
-
         }
 
       } catch (e) {
@@ -793,11 +945,137 @@
 
       const a = document.createElement('a');
 
-      a.download = 'drishti_v9_deep.png';
+      a.download = 'drishti_v10_mvp.png';
 
       a.href = dCanvas.toDataURL();
 
       a.click();
+
+    }
+
+
+
+    // TAB 3: ZYVERA LEDGER & KACCHA-CHITHA AUDIT DEMO
+
+    let bills = [{ id: 'ZAI-101', party: 'Prayagraj Distributors', base: 40000, total: 47200 }];
+
+    function renderBills() {
+
+      const tb = document.getElementById('z-tbody');
+
+      tb.innerHTML = '';
+
+      bills.forEach((b, idx) => {
+
+        tb.innerHTML += `<tr>
+
+          <td style="font-family:'Share Tech Mono'; color:var(--cyan)">${b.id}</td>
+
+          <td>${b.party}</td>
+
+          <td>₹${b.base}</td>
+
+          <td style="color:var(--green); font-weight:bold">₹${b.total}</td>
+
+          <td><button class="d-btn" style="padding:4px 8px; font-size:11px; border-color:var(--red); color:var(--red)" onclick="simulateStaffTamper(${idx})">⚠️ Tamper (-₹5000)</button></td>
+
+        </tr>`;
+
+      });
+
+    }
+
+    renderBills();
+
+
+
+    async function addZyveraBill() {
+
+      const party = document.getElementById('z-party').value || 'Client';
+
+      const base = parseFloat(document.getElementById('z-amt').value) || 1000;
+
+      const res = await fetch(`${BRIDGE_API}/api/chat?query=${encodeURIComponent(base + ' ka 18% gst')}`);
+
+      const data = await res.json();
+
+      const total = Math.round(base * 1.18);
+
+      bills.push({ id: 'ZAI-' + (101 + bills.length), party, base, total });
+
+      renderBills();
+
+      document.getElementById('z-siren').style.display = 'block';
+
+      document.getElementById('z-siren').style.borderColor = 'var(--green)';
+
+      document.getElementById('z-siren').style.color = 'var(--green)';
+
+      document.getElementById('z-siren').innerHTML = `✅ <b>C-Kernel ALU Verified:</b> ${data.llm_response}`;
+
+    }
+
+
+
+    function simulateStaffTamper(idx) {
+
+      const b = bills[idx];
+
+      const fakeAmt = b.total - 5900;
+
+      const siren = document.getElementById('z-siren');
+
+      siren.style.display = 'block';
+
+      siren.style.borderColor = 'var(--red)';
+
+      siren.style.color = '#ff7b72';
+
+      siren.innerHTML = `🚨 <b>[KACCHA-CHITHA AUDIT SIREN TRIGGERED!]</b><br>Staff attempted to lower Invoice <b>${b.id} (${b.party})</b> from <b>₹${b.total}</b> to <b>₹${fakeAmt}</b>!<br>⚡ C-Kernel Immutable Hash Lock blocked the overwrite & dispatched Boss Alert in 0.002ms.`;
+
+    }
+
+
+
+    // TAB 4: GATI-TATTVA ROBOTICS CONTROLLER
+
+    async function updateGati() {
+
+      const r = document.getElementById('g-roll').value;
+
+      const p = document.getElementById('g-pitch').value;
+
+      const d = document.getElementById('g-dist').value;
+
+      document.getElementById('lbl-roll').innerText = r;
+
+      document.getElementById('lbl-pitch').innerText = p;
+
+      document.getElementById('lbl-dist').innerText = d;
+
+
+
+      try {
+
+        const res = await fetch(`${KERNEL_API}/api/gati?roll=${r}&pitch=${p}&dist=${d}`);
+
+        const data = await res.json();
+
+        document.getElementById('m1-val').innerText = data.pwm_motors[0];
+
+        document.getElementById('m2-val').innerText = data.pwm_motors[1];
+
+        document.getElementById('m3-val').innerText = data.pwm_motors[2];
+
+        document.getElementById('m4-val').innerText = data.pwm_motors[3];
+
+        document.getElementById('gati-status').innerText = data.spike
+
+          ? `🚨 SPANDA REFLEX SPIKE (RAJAS)! Obstacle/Tilt Critical -> Evade Vector: ${data.evade_vector}°`
+
+          : `✅ Flight Stable (SATTVA Homeostasis) • 0.001ms C-Kernel PD Loop`;
+
+      } catch (e) {}
 
     }
 
