@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Param-Tattva v6.0 Sovereign OS</title>
+  <title>Param-Tattva v7.0 Native C-Trainer</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Share+Tech+Mono&display=swap');
     :root {
@@ -35,9 +35,7 @@
     .n-cell.hot1 { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
     .n-cell.hot2 { background: var(--green); box-shadow: 0 0 8px var(--green); }
 
-    #chat-box {
-      flex: 1; overflow-y: auto; padding: 16px 6%; display: flex; flex-direction: column; gap: 18px;
-    }
+    #chat-box { flex: 1; overflow-y: auto; padding: 16px 6%; display: flex; flex-direction: column; gap: 18px; }
     .msg-wrapper { display: flex; gap: 12px; max-width: 100%; }
     .msg-wrapper.user { flex-direction: row-reverse; }
     .avatar {
@@ -72,7 +70,7 @@
     #send-btn { background: var(--blue); color: #000; padding: 0 18px; }
 
     #drishti-modal {
-      position: fixed; inset: 0; background: rgba(5,8,12,0.97); z-index: 100;
+      position: fixed; inset: 0; background: rgba(5,8,12,0.98); z-index: 100;
       display: none; flex-direction: column; padding: 10px; gap: 8px;
     }
     .d-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
@@ -92,7 +90,7 @@
 <body>
 
   <div id="header">
-    <div class="title">⚛️ Param-Tattva v6.0 Sovereign</div>
+    <div class="title">⚛️ Param-Tattva v7.0 (Native C-Trainer)</div>
     <div class="stats-container">
       <div class="stat-badge"><span style="color:var(--dim)">RAM:</span><span id="ui-ram" style="color:var(--green)">1024 B</span></div>
       <div class="stat-badge"><span style="color:var(--dim)">SUTRAS:</span><span id="ui-sutras" style="color:var(--purple)">6</span></div>
@@ -109,9 +107,8 @@
     <div class="msg-wrapper ai">
       <div class="avatar">⚙️</div>
       <div class="msg-content">
-        <strong>Param-Tattva v6.0 (100% Independent Sovereign Core) Live!</strong><br>
-        • <b>Drishti v6.0 Pyramid Inpainter (🎨):</b> Uses Coarse-to-Fine Sookshma Pyramid + Deep Dark-Rim Eater + 5x5 Patch Voting (No black blobs or bush bleeding!).<br>
-        • <b>Gati-Tattva Robotics/Drone API:</b> Live on <code>/api/gati?roll=18&pitch=-5&dist=0.8</code>.
+        <strong>Param-Tattva v7.0 (Native Compiled C Vision Trainer) Active!</strong><br>
+        Browser JS loops removed! Now when you tap <b>🎯 C-Auto-Select</b> or <b>🔥 C-Train & Erase</b>, the image goes directly to <code>./drishti-engine</code> (compiled in C with <code>-O3</code> on your phone) which trains a 3D Color Cube + 4-Level Pyramid over 29 EM Epochs!
       </div>
     </div>
   </div>
@@ -122,13 +119,13 @@
     <button class="btn" id="send-btn">➤</button>
   </div>
 
-  <!-- 🎨 Drishti-Shuddhi v6.0 Studio -->
+  <!-- 🎨 Drishti-Shuddhi v7.0 Native C Studio -->
   <div id="drishti-modal">
     <div class="d-top">
-      <span style="font-family:'Share Tech Mono'; color:var(--cyan); font-weight:bold;">🎨 DRISHTI v6.0 (Sookshma-Sthoola Pyramid PatchMatch)</span>
+      <span style="font-family:'Share Tech Mono'; color:var(--cyan); font-weight:bold;">⚡ DRISHTI v7.0 (Compiled C-Engine: 29-Epoch Pyramid Trainer)</span>
       <button class="d-btn" onclick="document.getElementById('drishti-modal').style.display='none'">✖ Close</button>
     </div>
-    <div class="d-telemetry" id="d-status">Select Photo -> Paint over the car -> Tap '⚡ Pyramid Erase' (Auto-eats dark rims & matches road angle)!</div>
+    <div class="d-telemetry" id="d-status">1. Select Photo -> 2. Circle/Paint Car -> 3. Tap '🎯 C-Auto-Select' or '🔥 C-Train & Erase'!</div>
     <div class="d-canvas-wrap">
       <canvas id="d-canvas"></canvas>
     </div>
@@ -136,11 +133,11 @@
       <input type="file" id="d-file" accept="image/*" style="display:none">
       <button class="d-btn" onclick="document.getElementById('d-file').click()">📂 Photo</button>
       <label style="font-size:11px; color:var(--dim); display:flex; align-items:center; gap:4px;">
-        Brush: <input type="range" id="brush-size" min="12" max="50" value="28" style="width:65px">
+        Brush: <input type="range" id="brush-size" min="10" max="48" value="24" style="width:60px">
       </label>
       <button class="d-btn" onclick="resetMask()">↩️ Reset</button>
-      <button class="d-btn" style="border-color:#f85149; color:#ff7b72" onclick="runSookshmaPyramidErase()">⚡ Pyramid Erase</button>
-      <button class="d-btn" style="border-color:var(--green); color:var(--green)" onclick="runFrameXBoost()">🚀 FrameX Boost</button>
+      <button class="d-btn" style="border-color:var(--cyan); color:var(--cyan)" onclick="runNativeCDrishti(1)">🎯 C-Auto-Select</button>
+      <button class="d-btn" style="border-color:#f85149; color:#ff7b72" onclick="runNativeCDrishti(2)">🔥 C-Train & Erase</button>
       <button class="d-btn" onclick="downloadDrishtiImage()">💾 Save</button>
     </div>
   </div>
@@ -256,7 +253,7 @@
     inputField.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCommand(); } });
 
     // =========================================================================
-    // 🎨 DRISHTI v6.0: SOOKSHMA-STHOOLA MULTI-SCALE PYRAMID + DARK-RIM EATER
+    // ⚡ NATIVE C DRISHTI CLIENT (Sends RGB + Mask to ./drishti-engine in C!)
     // =========================================================================
     const dModal = document.getElementById('drishti-modal');
     const dCanvas = document.getElementById('d-canvas');
@@ -273,13 +270,13 @@
       if (!file) return;
       const img = new Image();
       img.onload = () => {
-        const scale = Math.min(1, 520 / Math.max(img.width, img.height));
+        const scale = Math.min(1, 480 / Math.max(img.width, img.height));
         dCanvas.width = Math.round(img.width * scale);
         dCanvas.height = Math.round(img.height * scale);
         ctx.drawImage(img, 0, 0, dCanvas.width, dCanvas.height);
         cleanPixels = new Uint8ClampedArray(ctx.getImageData(0, 0, dCanvas.width, dCanvas.height).data);
         maskArray = new Uint8Array(dCanvas.width * dCanvas.height);
-        document.getElementById('d-status').innerText = `Loaded (${dCanvas.width}x${dCanvas.height}). Paint over the car -> Tap '⚡ Pyramid Erase'!`;
+        document.getElementById('d-status').innerText = `Loaded (${dCanvas.width}x${dCanvas.height}). Circle/paint the car -> Tap '🎯 C-Auto-Select' or '🔥 C-Train & Erase'!`;
       };
       img.src = URL.createObjectURL(file);
     };
@@ -288,19 +285,27 @@
       if (!cleanPixels) return;
       ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanPixels), dCanvas.width, dCanvas.height), 0, 0);
       maskArray.fill(0);
-      document.getElementById('d-status').innerText = `Reset complete. Paint over the object to erase.`;
+      document.getElementById('d-status').innerText = `Reset complete. Circle or paint over the object.`;
     }
 
     function renderMaskOverlay() {
       const w = dCanvas.width, h = dCanvas.height;
       const preview = new ImageData(new Uint8ClampedArray(cleanPixels), w, h);
       const pd = preview.data;
-      for (let i = 0; i < w * h; i++) {
-        if (maskArray[i] === 1) {
-          const p = i * 4;
-          pd[p] = Math.min(255, (pd[p] >> 1) + 130);
-          pd[p + 1] = pd[p + 1] >> 2;
-          pd[p + 2] = pd[p + 2] >> 2;
+      for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+          const i = y * w + x;
+          if (maskArray[i]) {
+            const p = i * 4;
+            const edge = (!maskArray[i - 1] || !maskArray[i + 1] || !maskArray[i - w] || !maskArray[i + w]);
+            if (edge) {
+              pd[p] = 0; pd[p + 1] = 255; pd[p + 2] = 255;
+            } else {
+              pd[p] = Math.min(255, (pd[p] >> 1) + 125);
+              pd[p + 1] = pd[p + 1] >> 2;
+              pd[p + 2] = pd[p + 2] >> 2;
+            }
+          }
         }
       }
       ctx.putImageData(preview, 0, 0);
@@ -325,7 +330,7 @@
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       const x = Math.floor((clientX - rect.left) * (dCanvas.width / rect.width));
       const y = Math.floor((clientY - rect.top) * (dCanvas.height / rect.height));
-      const radius = parseInt(document.getElementById('brush-size').value, 10) || 28;
+      const radius = parseInt(document.getElementById('brush-size').value, 10) || 24;
 
       if (lastX >= 0 && lastY >= 0) {
         const dist = Math.hypot(x - lastX, y - lastY);
@@ -347,262 +352,76 @@
     dCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); markMask(e); }, { passive: false });
     dCanvas.addEventListener('touchend', () => { isDrawing = false; lastX = -1; lastY = -1; });
 
-    // ⚡ DRISHTI v6.0: DARK-RIM EATER + DIRECTIONAL ISOPHOTE FLOW + 5x5 PATCH VOTING
-    function runSookshmaPyramidErase() {
-      if (!maskArray || !cleanPixels) return;
-      const t0 = performance.now();
-      const w = dCanvas.width, h = dCanvas.height;
-
-      // 1. Fill any interior loop inside the user's stroke
-      const ext = new Uint8Array(w * h);
-      const q = new Int32Array(w * h);
-      let qH = 0, qT = 0;
-      for (let x = 0; x < w; x++) {
-        if (!maskArray[x]) { ext[x] = 1; q[qT++] = x; }
-        const b = (h - 1) * w + x;
-        if (!maskArray[b]) { ext[b] = 1; q[qT++] = b; }
+    function uint8ToBase64(u8) {
+      let binary = '';
+      const chunk = 0x8000;
+      for (let i = 0; i < u8.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, u8.subarray(i, i + chunk));
       }
-      for (let y = 1; y < h - 1; y++) {
-        const l = y * w, r = y * w + (w - 1);
-        if (!maskArray[l]) { ext[l] = 1; q[qT++] = l; }
-        if (!maskArray[r]) { ext[r] = 1; q[qT++] = r; }
-      }
-      while (qH < qT) {
-        const c = q[qH++];
-        const cx = c % w, cy = (c / w) | 0;
-        if (cx > 0 && !maskArray[c - 1] && !ext[c - 1]) { ext[c - 1] = 1; q[qT++] = c - 1; }
-        if (cx < w - 1 && !maskArray[c + 1] && !ext[c + 1]) { ext[c + 1] = 1; q[qT++] = c + 1; }
-        if (cy > 0 && !maskArray[c - w] && !ext[c - w]) { ext[c - w] = 1; q[qT++] = c - w; }
-        if (cy < h - 1 && !maskArray[c + w] && !ext[c + w]) { ext[c + w] = 1; q[qT++] = c + w; }
-      }
-
-      const fullMask = new Uint8Array(w * h);
-      for (let i = 0; i < w * h; i++) if (!ext[i]) fullMask[i] = 1;
-
-      // 2. DEEP DARK-RIM EATER: Expand mask by 10px AND automatically swallow adjacent dark shadow/shoe/tire pixels
-      //    so dark rims NEVER bleed inward (fixes the black blob in 44425.png!)
-      const expanded = new Uint8Array(fullMask);
-      const rad = 10;
-      for (let y = rad; y < h - rad; y++) {
-        for (let x = rad; x < w - rad; x++) {
-          if (fullMask[y * w + x]) {
-            for (let dy = -rad; dy <= rad; dy++) {
-              for (let dx = -rad; dx <= rad; dx++) {
-                if (dx * dx + dy * dy <= rad * rad) expanded[(y + dy) * w + (x + dx)] = 1;
-              }
-            }
-          }
-        }
-      }
-      // Swallow any dark rim pixels within 8px of the expanded mask
-      for (let pass = 0; pass < 4; pass++) {
-        for (let y = 2; y < h - 2; y++) {
-          for (let x = 2; x < w - 2; x++) {
-            const i = y * w + x;
-            if (!expanded[i] && (expanded[i - 1] || expanded[i + 1] || expanded[i - w] || expanded[i + w])) {
-              const p = i * 4;
-              const luma = (cleanPixels[p] + cleanPixels[p + 1] + cleanPixels[p + 2]) / 3;
-              if (luma < 65) expanded[i] = 1; // Eat leftover dark tire/shoe shadow!
-            }
-          }
-        }
-      }
-      fullMask.set(expanded);
-
-      // 3. Measure Dominant Background Isophote Angle (Road/Horizon Tilt) outside the mask
-      let gxSum = 0, gySum = 0;
-      for (let y = 4; y < h - 4; y++) {
-        for (let x = 4; x < w - 4; x++) {
-          const i = y * w + x;
-          if (!fullMask[i] && (fullMask[i - 2] || fullMask[i + 2] || fullMask[i - w * 2] || fullMask[i + w * 2])) {
-            const p = i * 4;
-            const luma = cleanPixels[p] + cleanPixels[p + 1] + cleanPixels[p + 2];
-            if (luma < 150) continue; // Ignore dark shadows
-            const gx = (cleanPixels[(i + 1) * 4] - cleanPixels[(i - 1) * 4]);
-            const gy = (cleanPixels[(i + w) * 4] - cleanPixels[(i - w) * 4]);
-            // Isophote tangent is perpendicular to gradient: (-gy, gx)
-            gxSum += Math.abs(gy);
-            gySum += (gx * gy < 0) ? -Math.abs(gx) : Math.abs(gx);
-          }
-        }
-      }
-      // Calculate directional slope dy/dx along road lines (typically ~ -0.45 for tilted road)
-      let slopeY = -0.42;
-      if (gxSum > 100) {
-        slopeY = Math.max(-0.75, Math.min(0.75, gySum / (gxSum + 1)));
-      }
-
-      // 4. SOOKSHMA STRUCTURAL GUIDE: Directional Scanline Interpolation along Isophote Angle
-      //    Connects tilted road lines on the right directly to tilted road lines on the left!
-      const img = new Uint8ClampedArray(cleanPixels);
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const idx = y * w + x;
-          if (!fullMask[idx]) continue;
-
-          // Trace Left-Down and Right-Up along the road isophote angle, AND purely horizontal
-          let rSum = 0, gSum = 0, bSum = 0, wTotal = 0;
-          const slopes = [slopeY, slopeY * 0.5, 0.0];
-          const sWeights = [4.0, 2.5, 1.5];
-
-          for (let si = 0; si < 3; si++) {
-            const sl = slopes[si];
-            const sw = sWeights[si];
-
-            // Trace Left
-            for (let step = 1; step < w; step++) {
-              const lx = x - step;
-              const ly = Math.round(y - step * sl);
-              if (lx < 1 || ly < 1 || ly >= h - 1) break;
-              const li = ly * w + lx;
-              if (!fullMask[li]) {
-                const p = li * 4;
-                const luma = cleanPixels[p] + cleanPixels[p + 1] + cleanPixels[p + 2];
-                if (luma > 130) { // Reject dark car/shoe remnants
-                  const wt = sw / (step + 5);
-                  rSum += cleanPixels[p] * wt;
-                  gSum += cleanPixels[p + 1] * wt;
-                  bSum += cleanPixels[p + 2] * wt;
-                  wTotal += wt;
-                  break;
-                }
-              }
-            }
-            // Trace Right
-            for (let step = 1; step < w; step++) {
-              const rx = x + step;
-              const ry = Math.round(y + step * sl);
-              if (rx >= w - 1 || ry < 1 || ry >= h - 1) break;
-              const ri = ry * w + rx;
-              if (!fullMask[ri]) {
-                const p = ri * 4;
-                const luma = cleanPixels[p] + cleanPixels[p + 1] + cleanPixels[p + 2];
-                if (luma > 130) {
-                  // Favor right-side road structure slightly when filling road lane
-                  const wt = (sw * 1.4) / (step + 5);
-                  rSum += cleanPixels[p] * wt;
-                  gSum += cleanPixels[p + 1] * wt;
-                  bSum += cleanPixels[p + 2] * wt;
-                  wTotal += wt;
-                  break;
-                }
-              }
-            }
-          }
-
-          if (wTotal > 0) {
-            img[idx * 4]     = (rSum / wTotal) | 0;
-            img[idx * 4 + 1] = (gSum / wTotal) | 0;
-            img[idx * 4 + 2] = (bSum / wTotal) | 0;
-          }
-        }
-      }
-
-      // Smooth the Sookshma structural guide so there are zero harsh bands
-      const guide = new Uint8ClampedArray(img);
-      for (let pass = 0; pass < 8; pass++) {
-        for (let y = 2; y < h - 2; y++) {
-          for (let x = 2; x < w - 2; x++) {
-            const idx = y * w + x;
-            if (!fullMask[idx]) continue;
-            for (let c = 0; c < 3; c++) {
-              guide[idx * 4 + c] = (
-                img[(idx - 1) * 4 + c] + img[(idx + 1) * 4 + c] +
-                img[(idx - w) * 4 + c] + img[(idx + w) * 4 + c]
-              ) >> 2;
-            }
-          }
-        }
-        img.set(guide);
-      }
-
-      // 5. STHOOLA TEXTURE SYNTHESIS: 5x5 Overlapping Patch Voting guided by Sookshma Structure!
-      //    Finds real sharp road/desert texture patches that match the guide color & transfers their crisp grain!
-      const out = new Uint8ClampedArray(img);
-      for (let y = 3; y < h - 3; y++) {
-        for (let x = 3; x < w - 3; x++) {
-          const idx = y * w + x;
-          if (!fullMask[idx]) continue;
-
-          const gR = guide[idx * 4], gG = guide[idx * 4 + 1], gB = guide[idx * 4 + 2];
-          let bestCost = 1e9, bestX = x, bestY = y;
-
-          // Search 12 clean candidate patches along the road isophote & horizon band
-          for (let k = 1; k <= 12; k++) {
-            const dir = (k & 1) ? 1 : -1;
-            const dist = 24 + k * 14;
-            const cx = x + dir * dist;
-            const cy = Math.round(y + dir * dist * (k % 3 === 0 ? 0 : slopeY));
-            if (cx < 4 || cx >= w - 4 || cy < 4 || cy >= h - 4) continue;
-            if (fullMask[cy * w + cx]) continue;
-
-            const cp = (cy * w + cx) * 4;
-            const luma = cleanPixels[cp] + cleanPixels[cp + 1] + cleanPixels[cp + 2];
-            if (luma < 140) continue; // Never copy dark shadows!
-
-            // Compare candidate patch mean color with our smooth structural guide
-            const dr = cleanPixels[cp] - gR;
-            const dg = cleanPixels[cp + 1] - gG;
-            const db = cleanPixels[cp + 2] - gB;
-            const cost = dr * dr + dg * dg + db * db;
-            if (cost < bestCost) {
-              bestCost = cost;
-              bestX = cx; bestY = cy;
-            }
-          }
-
-          // Transfer high-frequency real texture detail (grain) from best matching clean patch onto smooth guide!
-          const bP = (bestY * w + bestX) * 4;
-          const bL = (bestY * w + (bestX - 1)) * 4;
-          const bR = (bestY * w + (bestX + 1)) * 4;
-          for (let c = 0; c < 3; c++) {
-            const grain = cleanPixels[bP + c] - ((cleanPixels[bL + c] + cleanPixels[bR + c]) >> 1);
-            const blended = (guide[idx * 4 + c] * 3 + cleanPixels[bP + c]) >> 2;
-            out[idx * 4 + c] = Math.min(255, Math.max(0, blended + grain));
-          }
-        }
-      }
-
-      cleanPixels.set(out);
-      maskArray.fill(0);
-      ctx.putImageData(new ImageData(out, w, h), 0, 0);
-
-      const dt = (performance.now() - t0).toFixed(0);
-      document.getElementById('d-status').innerText = `✅ Sookshma-Sthoola Pyramid Erase Complete in ${dt} ms (Slope: ${slopeY.toFixed(2)})!`;
+      return btoa(binary);
     }
 
-    function runFrameXBoost() {
-      if (!cleanPixels) return;
-      const t0 = performance.now();
-      const w = dCanvas.width, h = dCanvas.height;
-      const s = cleanPixels;
-      const out = new Uint8ClampedArray(s);
-      let rajasSpikes = 0;
+    function base64ToUint8(b64) {
+      const bin = atob(b64);
+      const u8 = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      return u8;
+    }
 
-      for (let y = 1; y < h - 1; y++) {
-        for (let x = 1; x < w - 1; x++) {
-          const i = (y * w + x) * 4;
-          const left = i - 4, right = i + 4, up = i - w * 4, down = i + w * 4;
-          const delta = Math.abs(s[i] - s[left]) + Math.abs(s[i] - s[right]) + Math.abs(s[i] - s[up]) + Math.abs(s[i] - s[down]);
-          if (delta > 45) {
-            rajasSpikes++;
-            for (let c = 0; c < 3; c++) {
-              const center = s[i + c] * 5 - (s[left + c] + s[right + c] + s[up + c] + s[down + c]);
-              out[i + c] = Math.min(255, Math.max(0, (s[i + c] * 3 + center) >> 2));
-            }
-          }
-        }
+    async function runNativeCDrishti(mode) {
+      if (!cleanPixels || !maskArray) return;
+      const w = dCanvas.width, h = dCanvas.height;
+      document.getElementById('d-status').innerText = mode === 1
+        ? "⏳ Training 3D Bayes Color Cube in C-Engine..."
+        : "⏳ Training 4-Scale Pyramid (29 EM Epochs) in Native C-Engine...";
+
+      // Pack RGB (3 bytes per pixel) from cleanPixels
+      const rgb = new Uint8Array(w * h * 3);
+      for (let i = 0; i < w * h; i++) {
+        rgb[i * 3]     = cleanPixels[i * 4];
+        rgb[i * 3 + 1] = cleanPixels[i * 4 + 1];
+        rgb[i * 3 + 2] = cleanPixels[i * 4 + 2];
       }
-      cleanPixels.set(out);
-      ctx.putImageData(new ImageData(out, w, h), 0, 0);
-      const dt = (performance.now() - t0).toFixed(1);
-      const savedPct = (100 - (rajasSpikes * 100 / (w * h))).toFixed(1);
-      document.getElementById('d-status').innerText = `🚀 FrameX Boost: ${dt} ms | Active Edge Spikes: ${rajasSpikes} | Tamas Skipped: ${savedPct}%!`;
+
+      try {
+        const res = await fetch(`${BRIDGE_API}/api/drishti`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            width: w, height: h, mode: mode,
+            rgb_b64: uint8ToBase64(rgb),
+            mask_b64: uint8ToBase64(maskArray)
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          const outRgb = base64ToUint8(data.rgb_b64);
+          const outMask = base64ToUint8(data.mask_b64);
+          maskArray.set(outMask);
+
+          if (mode === 2) {
+            for (let i = 0; i < w * h; i++) {
+              cleanPixels[i * 4]     = outRgb[i * 3];
+              cleanPixels[i * 4 + 1] = outRgb[i * 3 + 1];
+              cleanPixels[i * 4 + 2] = outRgb[i * 3 + 2];
+              cleanPixels[i * 4 + 3] = 255;
+            }
+            ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanPixels), w, h), 0, 0);
+          } else {
+            renderMaskOverlay();
+          }
+          document.getElementById('d-status').innerText = data.telemetry;
+        } else {
+          document.getElementById('d-status').innerText = "❌ Error: " + data.error;
+        }
+      } catch (e) {
+        document.getElementById('d-status').innerText = "❌ Failed to reach C-Engine bridge.";
+      }
     }
 
     function downloadDrishtiImage() {
       const a = document.createElement('a');
-      a.download = 'drishti_v6_cleaned.png';
+      a.download = 'drishti_v7_c_trained.png';
       a.href = dCanvas.toDataURL();
       a.click();
     }
