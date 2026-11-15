@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
+#include <math.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/socket.h>
@@ -12,7 +13,7 @@
 #define RAM_LIMIT 1024
 #define NEURON_BITS 2048
 #define U64_BLOCKS  (NEURON_BITS / 64)
-#define MAX_SUTRAS  256
+#define MAX_SUTRAS  512
 #define SMRITI_FILE "smriti.bin"
 
 #define TAMAS  0
@@ -39,6 +40,8 @@ typedef struct {
     uint32_t    zero_heat_hits;
     uint16_t    prana_level;
     int         triguna;
+    double      prev_roll_err;
+    double      prev_pitch_err;
 } ParamTattvaBrain_t;
 
 ParamTattvaBrain_t brain;
@@ -46,8 +49,8 @@ pthread_mutex_t core_lock = PTHREAD_MUTEX_INITIALIZER;
 
 int is_stop_word(const char* w) {
     static const char* stops[] = {
-        "what","is","the","a","an","of","in","to","for","how","why","tell","me",
-        "kya","hai","kaise","ka","ki","ke","ko","mein","batao","bhai","hota","hain",NULL
+        "what","is","the","a","an","of","in","to","for","how","why","tell","me","who","are",
+        "kya","hai","kaise","ka","ki","ke","ko","mein","batao","bhai","hota","hain","aur",NULL
     };
     for (int i = 0; stops[i]; i++) if (strcmp(w, stops[i]) == 0) return 1;
     return 0;
@@ -114,7 +117,6 @@ static inline int bindu_overlap(const BinduSDR_t* a, const BinduSDR_t* b) {
     return matched;
 }
 
-// Pure C-Kernel Zero-LLM Math & GST Sutra Evaluator
 int try_c_math_sutra(const char* q, char* out_reply) {
     char low[512] = {0};
     strncpy(low, q, sizeof(low) - 1);
@@ -209,7 +211,9 @@ void classify_task(const char* q, char* out_task) {
     strncpy(buf, q, sizeof(buf) - 1);
     for (int i = 0; buf[i]; i++) if (buf[i] >= 'A' && buf[i] <= 'Z') buf[i] += 32;
 
-    if (strstr(buf, "paid") || strstr(buf, "udhaar") || strstr(buf, "pending") || strstr(buf, "jama") || strstr(buf, "bill"))
+    if (strstr(buf, "drone") || strstr(buf, "robot") || strstr(buf, "gyro") || strstr(buf, "motor") || strstr(buf, "radar"))
+        strcpy(out_task, "ROBOTICS");
+    else if (strstr(buf, "paid") || strstr(buf, "udhaar") || strstr(buf, "pending") || strstr(buf, "jama") || strstr(buf, "bill"))
         strcpy(out_task, "LEDGER");
     else if (strstr(buf, "draw") || strstr(buf, "image") || strstr(buf, "photo") || strstr(buf, "picture"))
         strcpy(out_task, "VISION");
@@ -258,6 +262,43 @@ int main() {
 
         char json_out[1536] = {0};
 
+        // 🦾 GATI-TATTVA: ROBOTICS, DRONE & DEFENSE REFLEX CONTROLLER (/api/gati?roll=15&pitch=-8&dist=0.4)
+        if (strstr(buffer, "GET /api/gati")) {
+            double roll = 0, pitch = 0, dist = 10.0;
+            char *r_p = strstr(buffer, "roll="); if (r_p) roll = atof(r_p + 5);
+            char *p_p = strstr(buffer, "pitch="); if (p_p) pitch = atof(p_p + 6);
+            char *d_p = strstr(buffer, "dist="); if (d_p) dist = atof(d_p + 5);
+
+            pthread_mutex_lock(&core_lock);
+            // Spiking PD Reflex Math (Zero-Latency Stabilization)
+            double d_roll = roll - brain.prev_roll_err;
+            double d_pitch = pitch - brain.prev_pitch_err;
+            brain.prev_roll_err = roll;
+            brain.prev_pitch_err = pitch;
+
+            double corr_roll  = -(roll * 1.45 + d_roll * 0.65);
+            double corr_pitch = -(pitch * 1.45 + d_pitch * 0.65);
+            int emergency_spike = (fabs(roll) > 20.0 || fabs(pitch) > 20.0 || dist < 1.2) ? 1 : 0;
+            if (emergency_spike) {
+                brain.triguna = RAJAS;
+                brain.spanda_spikes++;
+            }
+
+            // Quad-rotor / Actuator Mix (Base 1500us PWM)
+            int m1 = (int)(1500 + corr_pitch * 12 + corr_roll * 12);
+            int m2 = (int)(1500 + corr_pitch * 12 - corr_roll * 12);
+            int m3 = (int)(1500 - corr_pitch * 12 + corr_roll * 12);
+            int m4 = (int)(1500 - corr_pitch * 12 - corr_roll * 12);
+
+            snprintf(json_out, sizeof(json_out),
+                "{\"module\":\"Gati-Tattva Reflex\",\"spike\":%d,\"guna\":%d,\"pwm_motors\":[%d,%d,%d,%d],\"evade_vector\":%.2f}",
+                emergency_spike, brain.triguna, m1, m2, m3, m4, (dist < 1.2) ? -180.0 : 0.0);
+            pthread_mutex_unlock(&core_lock);
+            send_json(sock, json_out);
+            close(sock);
+            continue;
+        }
+
         if (strstr(buffer, "GET /api/orchestrate") || strstr(buffer, "GET /api/manifest")) {
             char *q_ptr = strstr(buffer, "query=");
             char query[512] = {0};
@@ -273,7 +314,6 @@ int main() {
             bindu_encode(query, &q_sdr);
             uint32_t q_hash = hash_stem(query, strlen(query));
 
-            // Build 32-block neuron activity map for live UI visualizer
             char neuron_map[36] = {0};
             for (int b = 0; b < 32; b++) {
                 int pop = __builtin_popcountll(q_sdr.blocks[b]);
@@ -349,7 +389,7 @@ int main() {
         else if (strstr(buffer, "GET /api/state")) {
             pthread_mutex_lock(&core_lock);
             snprintf(json_out, sizeof(json_out),
-                "{\"os\":\"Param-Tattva v4.0\",\"ram\":%d,\"entropy\":%u,\"sutras\":%u,\"zero_heat_hits\":%u,\"spikes\":%u,\"guna\":%d,\"prana\":%u}",
+                "{\"os\":\"Param-Tattva v6.0\",\"ram\":%d,\"entropy\":%u,\"sutras\":%u,\"zero_heat_hits\":%u,\"spikes\":%u,\"guna\":%d,\"prana\":%u}",
                 RAM_LIMIT, brain.spanda_spikes * 5, brain.total_sutras, brain.zero_heat_hits, brain.spanda_spikes, brain.triguna, brain.prana_level);
             pthread_mutex_unlock(&core_lock);
             send_json(sock, json_out);
