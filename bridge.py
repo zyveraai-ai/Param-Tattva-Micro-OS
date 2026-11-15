@@ -135,7 +135,7 @@ class BridgeHandler(BaseHTTPRequestHandler):
 
                 proc = subprocess.run(["./drishti-engine", "drishti_in.bin", "drishti_out.bin"], capture_output=True, text=True, timeout=30)
 
-                telemetry = proc.stdout.strip() or "✅ Native C-Engine v9.0 Complete!"
+                telemetry = proc.stdout.strip() or "✅ Native C-Engine v10.0 Complete!"
 
 
 
@@ -295,7 +295,7 @@ class BridgeHandler(BaseHTTPRequestHandler):
 
 
 
-print("🏹 Bridge v9.0 (Eklavya Distiller + Deep Drishti C-Engine) Live on 8110!")
+print("🏹 Bridge v10.0 (Eklavya Distiller + Deep Drishti C-Engine) Live on 8110!")
 
 ReusableHTTPServer(("127.0.0.1", 8110), BridgeHandler).serve_forever()
 

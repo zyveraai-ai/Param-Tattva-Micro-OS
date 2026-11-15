@@ -1,1085 +1,315 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
 
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Param-Tattva v10.0 MVP</title>
 
-  <title>Param-Tattva v10.0 Enterprise MVP</title>
+<style>
 
-  <style>
+:root{--bg:#090d13;--panel:#121820;--card:#171f2c;--green:#2ea043;--amber:#d29922;--blue:#58a6ff;--cyan:#39c5cf;--red:#f85149;--text:#e6edf3;--dim:#8b949e;--border:#293241}
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
 
-    :root {
+body,html{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:sans-serif;display:flex;flex-direction:column;overflow:hidden}
 
-      --bg: #090d13; --panel: #121820; --card: #171f2c; --chat-user: #1f6feb;
+#header{background:var(--panel);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
 
-      --green: #2ea043; --amber: #d29922; --blue: #58a6ff; --purple: #a371f7; --cyan: #39c5cf; --red: #f85149;
+.brand{font-family:monospace;color:var(--cyan);font-size:15px;font-weight:bold}
 
-      --text: #e6edf3; --dim: #8b949e; --border: #293241;
+.badge{background:var(--bg);border:1px solid var(--border);padding:3px 7px;border-radius:10px;font-family:monospace;font-size:11px;margin-left:4px}
 
-    }
+#nav-tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--border)}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+.tab-btn{flex:1;padding:10px 4px;background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);font-size:12px;font-weight:bold;cursor:pointer}
 
-    body, html {
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan)}
 
-      height: 100%; width: 100%; background: var(--bg); color: var(--text);
+.workspace{display:none;flex:1;flex-direction:column;overflow:hidden}.workspace.active{display:flex}
 
-      font-family: 'Inter', sans-serif; display: flex; flex-direction: column; overflow: hidden;
+#chat-box{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
 
-    }
+.msg{background:var(--card);padding:12px;border-radius:10px;border:1px solid var(--border);font-size:13.5px;max-width:88%}
 
-    #header {
+.msg.user{align-self:flex-end;background:#1f6feb;border:none}
 
-      background: var(--panel); border-bottom: 1px solid var(--border);
+#input-area{background:var(--panel);padding:10px;border-top:1px solid var(--border);display:flex;gap:8px}
 
-      padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+input,textarea{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:13.5px}
 
-    }
+.btn{background:var(--cyan);color:#000;border:none;padding:8px 14px;border-radius:8px;font-weight:bold;cursor:pointer;font-size:12px}
 
-    .brand { font-family: 'Share Tech Mono', monospace; color: var(--cyan); font-size: 15px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+.d-btn{background:var(--card);color:var(--text);border:1px solid var(--border);padding:8px 10px;border-radius:8px;font-size:12px;cursor:pointer}
 
-    .stats-bar { display: flex; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 11px; flex-wrap: wrap; }
+.d-canvas-box{flex:1;display:flex;justify-content:center;align-items:center;background:#040609;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:8px}
 
-    .badge { background: var(--bg); border: 1px solid var(--border); padding: 3px 8px; border-radius: 12px; }
+canvas{width:100%;height:100%;object-fit:contain;touch-action:none}
 
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:12px}
 
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th,td{border-bottom:1px solid var(--border);padding:8px;text-align:left}
 
-    #neuron-strip {
-
-      background: #06090e; border-bottom: 1px solid var(--border);
-
-      padding: 5px 14px; display: flex; align-items: center; gap: 8px;
-
-      font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--dim);
-
-    }
-
-    .n-grid { display: flex; gap: 2px; flex: 1; }
-
-    .n-cell { flex: 1; height: 7px; border-radius: 2px; background: #18202c; transition: 0.2s; }
-
-    .n-cell.hot1 { background: var(--blue); box-shadow: 0 0 5px var(--blue); }
-
-    .n-cell.hot2 { background: var(--green); box-shadow: 0 0 7px var(--green); }
-
-
-
-    /* Navigation Tabs */
-
-    #nav-tabs {
-
-      display: flex; background: var(--panel); border-bottom: 1px solid var(--border);
-
-      overflow-x: auto;
-
-    }
-
-    .tab-btn {
-
-      flex: 1; padding: 10px 8px; background: transparent; border: none; border-bottom: 2px solid transparent;
-
-      color: var(--dim); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; text-align: center;
-
-    }
-
-    .tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); background: rgba(57,197,207,0.06); }
-
-
-
-    .workspace { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-
-    .workspace.active { display: flex; }
-
-
-
-    /* Tab 1: Cortex Chat */
-
-    #chat-box { flex: 1; overflow-y: auto; padding: 14px 5%; display: flex; flex-direction: column; gap: 14px; }
-
-    .msg-wrapper { display: flex; gap: 10px; max-width: 100%; }
-
-    .msg-wrapper.user { flex-direction: row-reverse; }
-
-    .avatar {
-
-      width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center;
-
-      align-items: center; font-size: 16px; flex-shrink: 0; background: var(--card); border: 1px solid var(--border);
-
-    }
-
-    .msg-content {
-
-      background: var(--card); padding: 12px 15px; border-radius: 12px;
-
-      border: 1px solid var(--border); font-size: 13.5px; line-height: 1.5; max-width: 86%; word-wrap: break-word;
-
-    }
-
-    .msg-wrapper.user .msg-content { background: var(--chat-user); border-color: var(--chat-user); color: #fff; }
-
-    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-
-    .chip { font-size: 10px; padding: 2px 6px; border-radius: 8px; border: 1px solid var(--border); font-family: 'Share Tech Mono', monospace; }
-
-    .distill-box {
-
-      background: rgba(210,153,34,0.1); border-left: 3px solid var(--amber);
-
-      padding: 8px; border-radius: 0 6px 6px 0; font-size: 12px; margin-top: 8px;
-
-    }
-
-    #input-area {
-
-      background: var(--panel); padding: 10px 4%; border-top: 1px solid var(--border); display: flex; gap: 8px;
-
-    }
-
-    textarea {
-
-      flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text);
-
-      padding: 11px; border-radius: 10px; font-size: 14px; resize: none; outline: none; height: 44px;
-
-    }
-
-    .btn {
-
-      border: none; height: 44px; padding: 0 16px; border-radius: 10px; font-weight: bold;
-
-      cursor: pointer; font-size: 13px; background: var(--cyan); color: #000;
-
-    }
-
-
-
-    /* Tab 2: Drishti Studio */
-
-    .d-wrap { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 8px; overflow: hidden; }
-
-    .d-status { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--cyan); text-align: center; padding: 4px; background: var(--panel); border-radius: 6px; }
-
-    .d-canvas-box {
-
-      flex: 1; display: flex; justify-content: center; align-items: center;
-
-      background: #040609; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative;
-
-    }
-
-    canvas { width: 100%; height: 100%; object-fit: contain; touch-action: none; }
-
-    .d-bar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; }
-
-    .d-btn {
-
-      padding: 8px 11px; border-radius: 8px; border: 1px solid var(--border);
-
-      background: var(--card); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer;
-
-    }
-
-
-
-    /* Tab 3 & 4: Zyvera Ledger & Gati Robotics */
-
-    .panel-scroll { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-
-    .mvp-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
-
-    .mvp-title { font-family: 'Share Tech Mono', monospace; color: var(--cyan); font-size: 14px; margin-bottom: 8px; font-weight: bold; }
-
-    .row-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-
-    .inp { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 9px; border-radius: 8px; font-size: 13px; flex: 1; }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-
-    th, td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; }
-
-    .siren-box { background: rgba(248,81,73,0.12); border: 1px solid var(--red); color: #ff7b72; padding: 10px; border-radius: 8px; font-size: 12.5px; margin-top: 8px; display: none; }
-
-    .motor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-
-    .motor-box { background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 8px; text-align: center; font-family: 'Share Tech Mono', monospace; }
-
-  </style>
+</style>
 
 </head>
 
 <body>
 
+<div id="header">
+
+  <div class="brand">⚛️ PARAM-TATTVA v10.0 MVP</div>
+
+  <div><span class="badge">RAM: 1024B</span><span class="badge">SUTRAS: <b id="ui-s">6</b></span><span class="badge" id="ui-g">SATTVA</span></div>
+
+</div>
+
+<div id="nav-tabs">
+
+  <button class="tab-btn active" onclick="tab('t1',this)">💬 Cortex</button>
+
+  <button class="tab-btn" onclick="tab('t2',this)">🎨 Drishti v10</button>
+
+  <button class="tab-btn" onclick="tab('t3',this)">📊 Zyvera Audit</button>
+
+  <button class="tab-btn" onclick="tab('t4',this)">🦾 Gati Robotics</button>
+
+</div>
 
 
-  <div id="header">
 
-    <div class="brand">⚛️ PARAM-TATTVA v10.0 MVP</div>
+<div id="t1" class="workspace active">
 
-    <div class="stats-bar">
+  <div id="chat-box"><div class="msg"><b>Param-Tattva v10.0 Enterprise MVP Live!</b><br>Ask anything (Eklavya Teacher Distiller + 0.002ms C-Kernel Recall), or switch tabs above!</div></div>
 
-      <div class="badge">RAM: <span id="ui-ram" style="color:var(--green)">1024 B</span></div>
+  <div id="input-area"><input id="q-in" placeholder="Ask anything or calculate GST (12500 ka 18% gst)..."><button class="btn" onclick="sendQ()">➤</button></div>
 
-      <div class="badge">SUTRAS: <span id="ui-sutras" style="color:var(--amber)">6</span></div>
+</div>
 
-      <div class="badge">GUNA: <span id="ui-guna" style="color:var(--cyan)">SATTVA</span></div>
+
+
+<div id="t2" class="workspace">
+
+  <div id="d-status" style="font-family:monospace;font-size:11px;color:var(--cyan);text-align:center;padding:6px">1. Select Photo -> 2. Paint over Car -> 3. Tap '🔥 v10.0 Erase'!</div>
+
+  <div class="d-canvas-box"><canvas id="d-canvas"></canvas></div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:8px">
+
+    <input type="file" id="d-file" accept="image/*" style="display:none">
+
+    <button class="d-btn" onclick="document.getElementById('d-file').click()">📂 Photo</button>
+
+    <button class="d-btn" onclick="resetM()">↩️ Reset</button>
+
+    <button class="d-btn" style="border-color:var(--cyan);color:var(--cyan)" onclick="runC(1)">🎯 Auto-Select</button>
+
+    <button class="d-btn" style="border-color:var(--amber);color:var(--amber)" onclick="runC(2)">🔥 v10.0 Erase</button>
+
+    <button class="d-btn" id="cmp-btn" style="border-color:#a371f7;color:#a371f7">👁️ Hold Compare</button>
+
+    <button class="d-btn" onclick="saveImg()">💾 Save</button>
+
+  </div>
+
+</div>
+
+
+
+<div id="t3" class="workspace" style="overflow-y:auto">
+
+  <div class="card">
+
+    <b style="color:var(--cyan);font-family:monospace">📊 Z-SHEET LEDGER & KACCHA-CHITHA ANTI-THEFT LOCK</b>
+
+    <div style="display:flex;gap:6px;margin-top:10px"><input id="zp" value="Ramesh Traders"><input id="za" type="number" value="25000"><button class="btn" onclick="addB()">+ Bill</button></div>
+
+    <table><thead><tr><th>ID</th><th>Party</th><th>Total (+18% GST)</th><th>Audit Test</th></tr></thead><tbody id="ztb"></tbody></table>
+
+    <div id="zsiren" style="display:none;margin-top:10px;padding:10px;border:1px solid var(--red);border-radius:8px;color:#ff7b72;font-size:12px"></div>
+
+  </div>
+
+</div>
+
+
+
+<div id="t4" class="workspace" style="overflow-y:auto">
+
+  <div class="card">
+
+    <b style="color:var(--cyan);font-family:monospace">🦾 GATI-TATTVA 6-DOF DRONE REFLEX (/api/gati)</b>
+
+    <div style="margin-top:10px;font-size:12px">
+
+      Roll: <input type="range" id="gr" min="-45" max="45" value="22" oninput="upG()"><br><br>
+
+      Pitch: <input type="range" id="gp" min="-45" max="45" value="-8" oninput="upG()"><br><br>
+
+      Obstacle (m): <input type="range" id="gd" min="0.2" max="5" step="0.1" value="0.7" oninput="upG()">
 
     </div>
 
-  </div>
-
-
-
-  <div id="neuron-strip">
-
-    <span>2048-BIT SDR:</span>
-
-    <div class="n-grid" id="neuron-grid"></div>
+    <div id="g-out" style="margin-top:12px;font-family:monospace;color:var(--amber);font-size:13px"></div>
 
   </div>
 
+</div>
 
 
-  <div id="nav-tabs">
 
-    <button class="tab-btn active" onclick="switchTab('tab-cortex', this)">💬 Cortex & Distiller</button>
+<script>
 
-    <button class="tab-btn" onclick="switchTab('tab-drishti', this)">🎨 Drishti v10.0 Studio</button>
+const K='http://127.0.0.1:8108', B='http://127.0.0.1:8110';
 
-    <button class="tab-btn" onclick="switchTab('tab-zyvera', this)">📊 Zyvera Ledger & Audit</button>
+function tab(id,b){document.querySelectorAll('.workspace').forEach(w=>w.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');b.classList.add('active');if(id==='t4')upG();}
 
-    <button class="tab-btn" onclick="switchTab('tab-gati', this)">🦾 Gati Robotics API</button>
+async function sendQ(){
 
-  </div>
+  const q=document.getElementById('q-in').value.trim(); if(!q)return;
 
+  const cb=document.getElementById('chat-box');
 
+  cb.innerHTML+=`<div class="msg user">${q}</div>`; document.getElementById('q-in').value='';
 
-  <!-- TAB 1: CORTEX & EKLAVYA DISTILLER -->
+  const r=await fetch(`${B}/api/chat?query=${encodeURIComponent(q)}`); const d=await r.json();
 
-  <div id="tab-cortex" class="workspace active">
+  cb.innerHTML+=`<div class="msg">${d.llm_response||'⚡ Spanda Spike'}<br><small style="color:var(--cyan);font-family:monospace">HASH: ${d.hash} | SPIKE: ${d.spike}</small></div>`;
 
-    <div id="chat-box">
+  cb.scrollTop=cb.scrollHeight;
 
-      <div class="msg-wrapper ai">
+}
 
-        <div class="avatar">⚛️</div>
+const cv=document.getElementById('d-canvas'), ctx=cv.getContext('2d',{willReadFrequently:true});
 
-        <div class="msg-content">
+let origP=null, cleanP=null, mask=null, draw=false, lx=-1, ly=-1;
 
-          <strong>Param-Tattva v10.0 Enterprise MVP Ready.</strong><br>
+document.getElementById('d-file').onchange=e=>{
 
-          • <b>Zero-Heat Recall (0.002ms):</b> Hardware <code>__builtin_popcountll</code> matches 2048-bit Bindu SDRs.<br>
+  const f=e.target.files[0]; if(!f)return; const img=new Image();
 
-          • <b>🏹 Eklavya Teacher Distiller:</b> Ask any new question — I will distill the answer from a Teacher AI and permanently compile it into <code>smriti.bin</code>!<br>
+  img.onload=()=>{
 
-          • Switch tabs above to test <b>Drishti v10.0 (6-Ray Collinear C-Inpainter)</b>, <b>Zyvera Audit Siren</b>, and <b>Gati Robotics</b>.
+    const s=Math.min(1,480/Math.max(img.width,img.height));
 
-        </div>
+    cv.width=Math.round(img.width*s); cv.height=Math.round(img.height*s);
 
-      </div>
+    ctx.drawImage(img,0,0,cv.width,cv.height);
 
-    </div>
+    cleanP=new Uint8ClampedArray(ctx.getImageData(0,0,cv.width,cv.height).data);
 
-    <div id="input-area">
+    origP=new Uint8ClampedArray(cleanP); mask=new Uint8Array(cv.width*cv.height);
 
-      <textarea id="prompt-input" placeholder="Ask anything, calculate GST (12500 ka 18% gst), or teach..."></textarea>
+    document.getElementById('d-status').innerText=`Loaded ${cv.width}x${cv.height}. Paint Car -> Tap '🔥 v10.0 Erase'!`;
 
-      <button class="btn" id="send-btn">➤</button>
+  }; img.src=URL.createObjectURL(f);
 
-    </div>
+};
 
-  </div>
+function resetM(){if(!origP)return;cleanP=new Uint8ClampedArray(origP);ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanP),cv.width,cv.height),0,0);mask.fill(0);}
 
+const cb=document.getElementById('cmp-btn');
 
+cb.onmousedown=cb.ontouchstart=e=>{e.preventDefault();if(origP)ctx.putImageData(new ImageData(new Uint8ClampedArray(origP),cv.width,cv.height),0,0);};
 
-  <!-- TAB 2: DRISHTI v10.0 C-VISION STUDIO -->
+cb.onmouseup=cb.ontouchend=e=>{e.preventDefault();if(cleanP)ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanP),cv.width,cv.height),0,0);};
 
-  <div id="tab-drishti" class="workspace">
+function mark(e){
 
-    <div class="d-wrap">
+  if(!draw||!mask)return; const r=cv.getBoundingClientRect();
 
-      <div class="d-status" id="d-status">1. Select Photo -> 2. Paint over Car -> 3. Tap '🔥 v10.0 Erase' (6-Ray Resonance + Crisp Desert Grafting)!</div>
+  const cx=e.touches?e.touches[0].clientX:e.clientX, cy=e.touches?e.touches[0].clientY:e.clientY;
 
-      <div class="d-canvas-box">
+  const x=Math.floor((cx-r.left)*(cv.width/r.width)), y=Math.floor((cy-r.top)*(cv.height/r.height)), rad=24;
 
-        <canvas id="d-canvas"></canvas>
+  const st=lx>=0?Math.max(1,Math.ceil(Math.hypot(x-lx,y-ly)/3)):1;
 
-      </div>
+  for(let s=0;s<=st;s++){
 
-      <div class="d-bar">
+    const ix=lx>=0?Math.round(lx+(x-lx)*(s/st)):x, iy=ly>=0?Math.round(ly+(y-ly)*(s/st)):y;
 
-        <input type="file" id="d-file" accept="image/*" style="display:none">
+    for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++)if(dx*dx+dy*dy<=rad*rad){
 
-        <button class="d-btn" onclick="document.getElementById('d-file').click()">📂 Photo</button>
-
-        <label style="font-size:11px; color:var(--dim); display:flex; align-items:center; gap:4px;">
-
-          Brush: <input type="range" id="brush-size" min="10" max="48" value="26" style="width:55px">
-
-        </label>
-
-        <button class="d-btn" onclick="resetMask()">↩️ Reset</button>
-
-        <button class="d-btn" style="border-color:var(--cyan); color:var(--cyan)" onclick="runNativeCDrishti(1)">🎯 Auto-Select</button>
-
-        <button class="d-btn" style="border-color:var(--amber); color:var(--amber)" onclick="runNativeCDrishti(2)">🔥 v10.0 Erase</button>
-
-        <button class="d-btn" id="compare-btn" style="border-color:var(--purple); color:var(--purple)">👁️ Compare</button>
-
-        <button class="d-btn" onclick="downloadDrishtiImage()">💾 Save</button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- TAB 3: ZYVERA LEDGER & KACCHA-CHITHA FRAUD AUDIT -->
-
-  <div id="tab-zyvera" class="workspace">
-
-    <div class="panel-scroll">
-
-      <div class="mvp-card">
-
-        <div class="mvp-title">📊 Z-SHEET DETERMINISTIC HINGLISH LEDGER + GST ALU</div>
-
-        <div style="font-size:12px; color:var(--dim)">Type a bill entry or test the Kaccha-Chitha anti-theft audit lock:</div>
-
-        <div class="row-inputs">
-
-          <input class="inp" id="z-party" placeholder="Customer/Staff (e.g. Ramesh Traders)" value="Ramesh Traders">
-
-          <input class="inp" id="z-amt" type="number" placeholder="Base Amount (Rs)" value="25000">
-
-          <button class="d-btn" style="border-color:var(--green); color:var(--green)" onclick="addZyveraBill()">➕ Add Bill (+18% GST)</button>
-
-        </div>
-
-        <table>
-
-          <thead><tr><th>ID</th><th>Party</th><th>Base</th><th>Total (+18% GST)</th><th>Audit Action (Try Lowering!)</th></tr></thead>
-
-          <tbody id="z-tbody"></tbody>
-
-        </table>
-
-        <div class="siren-box" id="z-siren"></div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- TAB 4: GATI-TATTVA ROBOTICS & DRONE FLIGHT CONTROLLER -->
-
-  <div id="tab-gati" class="workspace">
-
-    <div class="panel-scroll">
-
-      <div class="mvp-card">
-
-        <div class="mvp-title">🦾 GATI-TATTVA 6-DOF DRONE / ROBOTICS REFLEX API (/api/gati)</div>
-
-        <div style="font-size:12px; color:var(--dim)">Move sliders to simulate wind hit or obstacle — C-Kernel computes motor PWM thrust in 0.001ms:</div>
-
-        <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px; font-size:12px;">
-
-          <label>Roll Angle (<span id="lbl-roll">18</span>°): <input type="range" id="g-roll" min="-45" max="45" value="18" oninput="updateGati()" style="width:100%"></label>
-
-          <label>Pitch Angle (<span id="lbl-pitch">-6</span>°): <input type="range" id="g-pitch" min="-45" max="45" value="-6" oninput="updateGati()" style="width:100%"></label>
-
-          <label>Obstacle Distance (<span id="lbl-dist">0.8</span>m): <input type="range" id="g-dist" min="0.2" max="5.0" step="0.1" value="0.8" oninput="updateGati()" style="width:100%"></label>
-
-        </div>
-
-        <div class="motor-grid">
-
-          <div class="motor-box">FRONT-LEFT (M1)<br><span id="m1-val" style="color:var(--cyan); font-size:16px">1500</span> µs</div>
-
-          <div class="motor-box">FRONT-RIGHT (M2)<br><span id="m2-val" style="color:var(--cyan); font-size:16px">1500</span> µs</div>
-
-          <div class="motor-box">REAR-LEFT (M3)<br><span id="m3-val" style="color:var(--cyan); font-size:16px">1500</span> µs</div>
-
-          <div class="motor-box">REAR-RIGHT (M4)<br><span id="m4-val" style="color:var(--cyan); font-size:16px">1500</span> µs</div>
-
-        </div>
-
-        <div id="gati-status" style="margin-top:10px; font-family:'Share Tech Mono'; font-size:12px; color:var(--amber); text-align:center;"></div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <script>
-
-    const KERNEL_API = 'http://127.0.0.1:8108';
-
-    const BRIDGE_API = 'http://127.0.0.1:8110';
-
-
-
-    function switchTab(tabId, btn) {
-
-      document.querySelectorAll('.workspace').forEach(w => w.classList.remove('active'));
-
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-      document.getElementById(tabId).classList.add('active');
-
-      btn.classList.add('active');
-
-      if (tabId === 'tab-gati') updateGati();
+      const nx=ix+dx, ny=iy+dy; if(nx>=0&&nx<cv.width&&ny>=0&&ny<cv.height)mask[ny*cv.width+nx]=1;
 
     }
 
+  }
 
+  lx=x; ly=y;
 
-    const nGrid = document.getElementById('neuron-grid');
+  const pv=new ImageData(new Uint8ClampedArray(cleanP),cv.width,cv.height);
 
-    for (let i = 0; i < 32; i++) {
+  for(let i=0;i<mask.length;i++)if(mask[i]){pv.data[i*4]=255;pv.data[i*4+1]>>=2;pv.data[i*4+2]>>=2;}
 
-      const c = document.createElement('div');
+  ctx.putImageData(pv,0,0);
 
-      c.className = 'n-cell';
+}
 
-      nGrid.appendChild(c);
+cv.onmousedown=e=>{draw=true;lx=ly=-1;mark(e);}; cv.onmousemove=mark; window.onmouseup=()=>{draw=false;};
 
-    }
+cv.addEventListener('touchstart',e=>{e.preventDefault();draw=true;lx=ly=-1;mark(e);},{passive:false});
 
-    function renderNeurons(mapStr) {
+cv.addEventListener('touchmove',e=>{e.preventDefault();mark(e);},{passive:false});
 
-      if (!mapStr) return;
+cv.addEventListener('touchend',()=>{draw=false;});
 
-      const cells = nGrid.children;
+function u2b(u){let b='';for(let i=0;i<u.length;i+=0x8000)b+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(b);}
 
-      for (let i = 0; i < 32 && i < mapStr.length; i++) {
+function b2u(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
 
-        cells[i].className = 'n-cell' + (mapStr[i] === '2' ? ' hot2' : mapStr[i] === '1' ? ' hot1' : '');
+async function runC(m){
 
-      }
+  if(!cleanP||!mask)return; const w=cv.width, h=cv.height;
 
-    }
+  document.getElementById('d-status').innerText="🔥 Running Native C Engine v10.0...";
 
+  const rgb=new Uint8Array(w*h*3); for(let i=0;i<w*h;i++){rgb[i*3]=cleanP[i*4];rgb[i*3+1]=cleanP[i*4+1];rgb[i*3+2]=cleanP[i*4+2];}
 
+  const r=await fetch(`${B}/api/drishti`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({width:w,height:h,mode:m,rgb_b64:u2b(rgb),mask_b64:u2b(mask)})});
 
-    async function updateStats() {
+  const d=await r.json();
 
-      try {
+  if(d.status==='ok'){
 
-        const res = await fetch(`${KERNEL_API}/api/state`, { cache: 'no-store' });
+    const oR=b2u(d.rgb_b64), oM=b2u(d.mask_b64); mask.set(oM);
 
-        const data = await res.json();
+    if(m===2){for(let i=0;i<w*h;i++){cleanP[i*4]=oR[i*3];cleanP[i*4+1]=oR[i*3+1];cleanP[i*4+2]=oR[i*3+2];cleanP[i*4+3]=255;}ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanP),w,h),0,0);}
 
-        document.getElementById('ui-ram').innerText = data.ram + ' B';
+    else{const pv=new ImageData(new Uint8ClampedArray(cleanP),w,h);for(let i=0;i<mask.length;i++)if(mask[i]){pv.data[i*4]=0;pv.data[i*4+1]=255;pv.data[i*4+2]=255;}ctx.putImageData(pv,0,0);}
 
-        document.getElementById('ui-sutras').innerText = data.sutras || 6;
+    document.getElementById('d-status').innerText=d.telemetry;
 
-        document.getElementById('ui-guna').innerText = data.guna == 2 ? 'RAJAS' : data.guna == 0 ? 'TAMAS' : 'SATTVA';
+  }
 
-      } catch (e) {}
+}
 
-    }
+function saveImg(){const a=document.createElement('a');a.download='drishti_v10.png';a.href=cv.toDataURL();a.click();}
 
-    updateStats();
+let bills=[{id:'ZAI-101',p:'Prayagraj Distributors',t:47200}];
 
-    setInterval(updateStats, 3000);
+function rB(){const tb=document.getElementById('ztb');tb.innerHTML='';bills.forEach((b,i)=>{tb.innerHTML+=`<tr><td>${b.id}</td><td>${b.p}</td><td style="color:var(--green)">₹${b.t}</td><td><button class="d-btn" style="color:var(--red)" onclick="tamper(${i})">⚠️ Tamper</button></td></tr>`;});}
 
+rB();
 
+function addB(){const p=document.getElementById('zp').value, a=parseFloat(document.getElementById('za').value)||1000;bills.push({id:'ZAI-'+(101+bills.length),p,t:Math.round(a*1.18)});rB();}
 
-    // TAB 1: CORTEX CHAT
+function tamper(i){const b=bills[i], s=document.getElementById('zsiren');s.style.display='block';s.innerHTML=`🚨 <b>KACCHA-CHITHA SIREN!</b> Staff tried lowering <b>${b.id} (${b.p})</b> from ₹${b.t} to ₹${b.t-5000}! Blocked in 0.002ms.`;}
 
-    const chatBox = document.getElementById('chat-box');
+async function upG(){
 
-    const inputField = document.getElementById('prompt-input');
+  const r=document.getElementById('gr').value, p=document.getElementById('gp').value, d=document.getElementById('gd').value;
 
-    const sendBtn = document.getElementById('send-btn');
+  const res=await fetch(`${K}/api/gati?roll=${r}&pitch=${p}&dist=${d}`); const j=await res.json();
 
+  document.getElementById('g-out').innerHTML=`Motors PWM: [${j.pwm_motors.join(' µs, ')} µs]<br>Status: ${j.spike?'🚨 SPANDA EVADE SPIKE (-180°)!':'✅ SATTVA STABLE'}`;
 
+}
 
-    function addMessage(sender, text, chips = [], distillNote = null) {
-
-      const isUser = sender === 'user';
-
-      const msgDiv = document.createElement('div');
-
-      msgDiv.className = `msg-wrapper ${isUser ? 'user' : 'ai'}`;
-
-      let html = `<div class="avatar">${isUser ? '👤' : '⚛️'}</div><div class="msg-content">${text}`;
-
-      if (chips.length > 0) {
-
-        html += `<div class="chips">`;
-
-        chips.forEach(c => html += `<span class="chip" style="color:${c.color}; border-color:${c.color}">${c.text}</span>`);
-
-        html += `</div>`;
-
-      }
-
-      if (distillNote) html += `<div class="distill-box"><b>🏹 Eklavya Distilled:</b> ${distillNote}</div>`;
-
-      html += `</div>`;
-
-      msgDiv.innerHTML = html;
-
-      chatBox.appendChild(msgDiv);
-
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-    }
-
-
-
-    async function sendCommand() {
-
-      const query = inputField.value.trim();
-
-      if (!query) return;
-
-      addMessage('user', query);
-
-      inputField.value = '';
-
-      sendBtn.disabled = true;
-
-
-
-      try {
-
-        const res = await fetch(`${BRIDGE_API}/api/chat?query=${encodeURIComponent(query)}`, { cache: 'no-store' });
-
-        const data = await res.json();
-
-        renderNeurons(data.neurons);
-
-
-
-        const chips = [
-
-          { text: `HASH: ${data.hash}`, color: 'var(--blue)' },
-
-          { text: `OVERLAP: ${data.overlap || 0}`, color: 'var(--purple)' },
-
-          { text: `SPIKE: ${data.spike}`, color: data.spike > 0 ? 'var(--amber)' : 'var(--green)' }
-
-        ];
-
-
-
-        if (data.distilled === 1) {
-
-          addMessage('ai', data.llm_response, chips, "Reverse-engineered from Teacher AI & locked into C-Kernel smriti.bin! Ask again for 0.002ms Zero-Heat recall.");
-
-        } else if (data.llm_response && data.llm_response.trim() !== "") {
-
-          addMessage('ai', data.llm_response, chips);
-
-        } else {
-
-          addMessage('ai', `⚡ <b>Spanda Spike</b>. Teach via <code>teach: ${query} | answer</code>`, chips);
-
-        }
-
-        updateStats();
-
-      } catch (err) {
-
-        addMessage('ai', `⚠️ Bridge Disconnected.`);
-
-      }
-
-      sendBtn.disabled = false;
-
-    }
-
-    sendBtn.addEventListener('click', sendCommand);
-
-    inputField.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCommand(); } });
-
-
-
-    // TAB 2: DRISHTI v10.0 STUDIO
-
-    const dCanvas = document.getElementById('d-canvas');
-
-    const ctx = dCanvas.getContext('2d', { willReadFrequently: true });
-
-    let originalUploadPixels = null; // For Before/After Hold Comparison
-
-    let cleanPixels = null;
-
-    let maskArray = null;
-
-    let isDrawing = false;
-
-    let lastX = -1, lastY = -1;
-
-
-
-    document.getElementById('d-file').onchange = (e) => {
-
-      const file = e.target.files[0];
-
-      if (!file) return;
-
-      const img = new Image();
-
-      img.onload = () => {
-
-        const scale = Math.min(1, 500 / Math.max(img.width, img.height));
-
-        dCanvas.width = Math.round(img.width * scale);
-
-        dCanvas.height = Math.round(img.height * scale);
-
-        ctx.drawImage(img, 0, 0, dCanvas.width, dCanvas.height);
-
-        cleanPixels = new Uint8ClampedArray(ctx.getImageData(0, 0, dCanvas.width, dCanvas.height).data);
-
-        originalUploadPixels = new Uint8ClampedArray(cleanPixels);
-
-        maskArray = new Uint8Array(dCanvas.width * dCanvas.height);
-
-        document.getElementById('d-status').innerText = `Loaded (${dCanvas.width}x${dCanvas.height}). Paint over the car -> Tap '🔥 v10.0 Erase'!`;
-
-      };
-
-      img.src = URL.createObjectURL(file);
-
-    };
-
-
-
-    // Before/After Compare Hold Button
-
-    const compBtn = document.getElementById('compare-btn');
-
-    const showOrig = () => {
-
-      if (originalUploadPixels) ctx.putImageData(new ImageData(new Uint8ClampedArray(originalUploadPixels), dCanvas.width, dCanvas.height), 0, 0);
-
-    };
-
-    const showHealed = () => {
-
-      if (cleanPixels) ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanPixels), dCanvas.width, dCanvas.height), 0, 0);
-
-    };
-
-    compBtn.addEventListener('mousedown', showOrig);
-
-    compBtn.addEventListener('mouseup', showHealed);
-
-    compBtn.addEventListener('touchstart', (e) => { e.preventDefault(); showOrig(); });
-
-    compBtn.addEventListener('touchend', (e) => { e.preventDefault(); showHealed(); });
-
-
-
-    function resetMask() {
-
-      if (!originalUploadPixels) return;
-
-      cleanPixels = new Uint8ClampedArray(originalUploadPixels);
-
-      ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanPixels), dCanvas.width, dCanvas.height), 0, 0);
-
-      maskArray.fill(0);
-
-      document.getElementById('d-status').innerText = `Restored original photo. Paint over the object.`;
-
-    }
-
-
-
-    function renderMaskOverlay() {
-
-      const w = dCanvas.width, h = dCanvas.height;
-
-      const preview = new ImageData(new Uint8ClampedArray(cleanPixels), w, h);
-
-      const pd = preview.data;
-
-      for (let y = 1; y < h - 1; y++) {
-
-        for (let x = 1; x < w - 1; x++) {
-
-          const i = y * w + x;
-
-          if (maskArray[i]) {
-
-            const p = i * 4;
-
-            const edge = (!maskArray[i - 1] || !maskArray[i + 1] || !maskArray[i - w] || !maskArray[i + w]);
-
-            if (edge) { pd[p] = 0; pd[p + 1] = 255; pd[p + 2] = 255; }
-
-            else { pd[p] = Math.min(255, (pd[p] >> 1) + 125); pd[p + 1] = pd[p + 1] >> 2; pd[p + 2] = pd[p + 2] >> 2; }
-
-          }
-
-        }
-
-      }
-
-      ctx.putImageData(preview, 0, 0);
-
-    }
-
-
-
-    function stampBrush(cx, cy, radius) {
-
-      const w = dCanvas.width, h = dCanvas.height;
-
-      for (let dy = -radius; dy <= radius; dy++) {
-
-        for (let dx = -radius; dx <= radius; dx++) {
-
-          if (dx * dx + dy * dy <= radius * radius) {
-
-            const nx = cx + dx, ny = cy + dy;
-
-            if (nx >= 0 && nx < w && ny >= 0 && ny < h) maskArray[ny * w + nx] = 1;
-
-          }
-
-        }
-
-      }
-
-    }
-
-
-
-    function markMask(e) {
-
-      if (!isDrawing || !maskArray) return;
-
-      const rect = dCanvas.getBoundingClientRect();
-
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-      const x = Math.floor((clientX - rect.left) * (dCanvas.width / rect.width));
-
-      const y = Math.floor((clientY - rect.top) * (dCanvas.height / rect.height));
-
-      const radius = parseInt(document.getElementById('brush-size').value, 10) || 26;
-
-
-
-      if (lastX >= 0 && lastY >= 0) {
-
-        const dist = Math.hypot(x - lastX, y - lastY);
-
-        const steps = Math.max(1, Math.ceil(dist / 3));
-
-        for (let s = 0; s <= steps; s++) {
-
-          stampBrush(Math.round(lastX + (x - lastX) * (s / steps)), Math.round(lastY + (y - lastY) * (s / steps)), radius);
-
-        }
-
-      } else {
-
-        stampBrush(x, y, radius);
-
-      }
-
-      lastX = x; lastY = y;
-
-      renderMaskOverlay();
-
-    }
-
-
-
-    dCanvas.addEventListener('mousedown', (e) => { isDrawing = true; lastX = -1; lastY = -1; markMask(e); });
-
-    dCanvas.addEventListener('mousemove', markMask);
-
-    window.addEventListener('mouseup', () => { isDrawing = false; lastX = -1; lastY = -1; });
-
-    dCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; lastX = -1; lastY = -1; markMask(e); }, { passive: false });
-
-    dCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); markMask(e); }, { passive: false });
-
-    dCanvas.addEventListener('touchend', () => { isDrawing = false; lastX = -1; lastY = -1; });
-
-
-
-    function uint8ToBase64(u8) {
-
-      let binary = '';
-
-      const chunk = 0x8000;
-
-      for (let i = 0; i < u8.length; i += chunk) binary += String.fromCharCode.apply(null, u8.subarray(i, i + chunk));
-
-      return btoa(binary);
-
-    }
-
-    function base64ToUint8(b64) {
-
-      const bin = atob(b64);
-
-      const u8 = new Uint8Array(bin.length);
-
-      for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-
-      return u8;
-
-    }
-
-
-
-    async function runNativeCDrishti(mode) {
-
-      if (!cleanPixels || !maskArray) return;
-
-      const w = dCanvas.width, h = dCanvas.height;
-
-      document.getElementById('d-status').innerText = mode === 1
-
-        ? "⏳ Training 3D Bayes Color Cube in C-Engine..."
-
-        : "🔥 Running Drishti v10.0 (6-Ray Collinear Resonance + Crisp Desert Grafting)...";
-
-
-
-      const rgb = new Uint8Array(w * h * 3);
-
-      for (let i = 0; i < w * h; i++) {
-
-        rgb[i * 3]     = cleanPixels[i * 4];
-
-        rgb[i * 3 + 1] = cleanPixels[i * 4 + 1];
-
-        rgb[i * 3 + 2] = cleanPixels[i * 4 + 2];
-
-      }
-
-
-
-      try {
-
-        const res = await fetch(`${BRIDGE_API}/api/drishti`, {
-
-          method: 'POST',
-
-          headers: { 'Content-Type': 'application/json' },
-
-          body: JSON.stringify({ width: w, height: h, mode: mode, rgb_b64: uint8ToBase64(rgb), mask_b64: uint8ToBase64(maskArray) })
-
-        });
-
-        const data = await res.json();
-
-        if (data.status === 'ok') {
-
-          const outRgb = base64ToUint8(data.rgb_b64);
-
-          const outMask = base64ToUint8(data.mask_b64);
-
-          maskArray.set(outMask);
-
-
-
-          if (mode === 2) {
-
-            for (let i = 0; i < w * h; i++) {
-
-              cleanPixels[i * 4]     = outRgb[i * 3];
-
-              cleanPixels[i * 4 + 1] = outRgb[i * 3 + 1];
-
-              cleanPixels[i * 4 + 2] = outRgb[i * 3 + 2];
-
-              cleanPixels[i * 4 + 3] = 255;
-
-            }
-
-            ctx.putImageData(new ImageData(new Uint8ClampedArray(cleanPixels), w, h), 0, 0);
-
-          } else {
-
-            renderMaskOverlay();
-
-          }
-
-          document.getElementById('d-status').innerText = data.telemetry;
-
-        }
-
-      } catch (e) {
-
-        document.getElementById('d-status').innerText = "❌ Failed to reach C-Engine bridge.";
-
-      }
-
-    }
-
-
-
-    function downloadDrishtiImage() {
-
-      const a = document.createElement('a');
-
-      a.download = 'drishti_v10_mvp.png';
-
-      a.href = dCanvas.toDataURL();
-
-      a.click();
-
-    }
-
-
-
-    // TAB 3: ZYVERA LEDGER & KACCHA-CHITHA AUDIT DEMO
-
-    let bills = [{ id: 'ZAI-101', party: 'Prayagraj Distributors', base: 40000, total: 47200 }];
-
-    function renderBills() {
-
-      const tb = document.getElementById('z-tbody');
-
-      tb.innerHTML = '';
-
-      bills.forEach((b, idx) => {
-
-        tb.innerHTML += `<tr>
-
-          <td style="font-family:'Share Tech Mono'; color:var(--cyan)">${b.id}</td>
-
-          <td>${b.party}</td>
-
-          <td>₹${b.base}</td>
-
-          <td style="color:var(--green); font-weight:bold">₹${b.total}</td>
-
-          <td><button class="d-btn" style="padding:4px 8px; font-size:11px; border-color:var(--red); color:var(--red)" onclick="simulateStaffTamper(${idx})">⚠️ Tamper (-₹5000)</button></td>
-
-        </tr>`;
-
-      });
-
-    }
-
-    renderBills();
-
-
-
-    async function addZyveraBill() {
-
-      const party = document.getElementById('z-party').value || 'Client';
-
-      const base = parseFloat(document.getElementById('z-amt').value) || 1000;
-
-      const res = await fetch(`${BRIDGE_API}/api/chat?query=${encodeURIComponent(base + ' ka 18% gst')}`);
-
-      const data = await res.json();
-
-      const total = Math.round(base * 1.18);
-
-      bills.push({ id: 'ZAI-' + (101 + bills.length), party, base, total });
-
-      renderBills();
-
-      document.getElementById('z-siren').style.display = 'block';
-
-      document.getElementById('z-siren').style.borderColor = 'var(--green)';
-
-      document.getElementById('z-siren').style.color = 'var(--green)';
-
-      document.getElementById('z-siren').innerHTML = `✅ <b>C-Kernel ALU Verified:</b> ${data.llm_response}`;
-
-    }
-
-
-
-    function simulateStaffTamper(idx) {
-
-      const b = bills[idx];
-
-      const fakeAmt = b.total - 5900;
-
-      const siren = document.getElementById('z-siren');
-
-      siren.style.display = 'block';
-
-      siren.style.borderColor = 'var(--red)';
-
-      siren.style.color = '#ff7b72';
-
-      siren.innerHTML = `🚨 <b>[KACCHA-CHITHA AUDIT SIREN TRIGGERED!]</b><br>Staff attempted to lower Invoice <b>${b.id} (${b.party})</b> from <b>₹${b.total}</b> to <b>₹${fakeAmt}</b>!<br>⚡ C-Kernel Immutable Hash Lock blocked the overwrite & dispatched Boss Alert in 0.002ms.`;
-
-    }
-
-
-
-    // TAB 4: GATI-TATTVA ROBOTICS CONTROLLER
-
-    async function updateGati() {
-
-      const r = document.getElementById('g-roll').value;
-
-      const p = document.getElementById('g-pitch').value;
-
-      const d = document.getElementById('g-dist').value;
-
-      document.getElementById('lbl-roll').innerText = r;
-
-      document.getElementById('lbl-pitch').innerText = p;
-
-      document.getElementById('lbl-dist').innerText = d;
-
-
-
-      try {
-
-        const res = await fetch(`${KERNEL_API}/api/gati?roll=${r}&pitch=${p}&dist=${d}`);
-
-        const data = await res.json();
-
-        document.getElementById('m1-val').innerText = data.pwm_motors[0];
-
-        document.getElementById('m2-val').innerText = data.pwm_motors[1];
-
-        document.getElementById('m3-val').innerText = data.pwm_motors[2];
-
-        document.getElementById('m4-val').innerText = data.pwm_motors[3];
-
-        document.getElementById('gati-status').innerText = data.spike
-
-          ? `🚨 SPANDA REFLEX SPIKE (RAJAS)! Obstacle/Tilt Critical -> Evade Vector: ${data.evade_vector}°`
-
-          : `✅ Flight Stable (SATTVA Homeostasis) • 0.001ms C-Kernel PD Loop`;
-
-      } catch (e) {}
-
-    }
-
-  </script>
+</script>
 
 </body>
 
